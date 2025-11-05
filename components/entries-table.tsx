@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
-import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -16,6 +16,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import {
   useReactTable,
@@ -246,41 +252,80 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
       }),
       columnHelper.display({
         id: "actions",
-        header: "Actions",
-        cell: (info) => (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 hover:bg-green-500/10 hover:text-green-600 cursor-pointer"
-              onClick={() => console.log('Approve', info.row.original.id)}
-              title="Approve"
-            >
-              <CheckCircle className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 hover:bg-red-500/10 hover:text-red-600 cursor-pointer"
-              onClick={() => console.log('Reject', info.row.original.id)}
-              title="Reject"
-            >
-              <XCircle className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 hover:bg-blue-500/10 hover:text-blue-600 cursor-pointer"
-              onClick={() => console.log('View Details', info.row.original.id)}
-              title="View Details"
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-          </div>
-        ),
+        header: "",
+        cell: (info) => {
+          const isInsufficientDetail = issueType === "insufficient-detail"
+          const yesterday = new Date()
+          yesterday.setDate(yesterday.getDate() - 1)
+          const formattedDate = yesterday.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+
+          return (
+            <div className="flex items-center gap-1">
+              {isInsufficientDetail ? (
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 hover:bg-pink-500/10 hover:text-pink-600 cursor-pointer"
+                        title="Action Log"
+                      >
+                        <Sparkles className="h-4 w-4 text-pink-600" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <div className="space-y-1">
+                        <p className="font-semibold text-xs">Action Log</p>
+                        <ul className="text-xs text-muted-foreground list-disc list-outside ml-4 space-y-0.5">
+                          <li>Email requesting clarification sent to {info.row.original.timekeeper} on {formattedDate}</li>
+                        </ul>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <div className="h-7 w-7 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-gray-300" />
+                </div>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-green-500/10 hover:text-green-600 cursor-pointer"
+                onClick={() => console.log('Approve', info.row.original.id)}
+                title="Approve"
+              >
+                <CheckCircle className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-red-500/10 hover:text-red-600 cursor-pointer"
+                onClick={() => console.log('Reject', info.row.original.id)}
+                title="Reject"
+              >
+                <XCircle className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-blue-500/10 hover:text-blue-600 cursor-pointer"
+                onClick={() => console.log('View Details', info.row.original.id)}
+                title="View Details"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </div>
+          )
+        },
       }),
     ],
-    [editingCell]
+    [editingCell, issueType]
   )
 
   const table = useReactTable({
@@ -408,13 +453,13 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
               <SortHeaderCell headerId="timekeeper" label="Time Keeper" />
               <SortHeaderCell headerId="duration" label="Duration" />
               <SortHeaderCell headerId="task" label="Task" />
-              <th className="text-sm font-medium text-foreground py-3 px-4 text-left">Actions</th>
+              <th className="text-sm font-medium text-foreground py-3 px-4 text-left"></th>
             </tr>
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr 
-                key={row.id} 
+              <tr
+                key={row.id}
                 className={cn(
                   "border-b border-border hover:bg-card/50 transition-colors",
                   editingCell?.rowId === row.original.id && "bg-card/50"
