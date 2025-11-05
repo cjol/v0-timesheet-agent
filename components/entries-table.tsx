@@ -1,8 +1,22 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
-import { ChevronUp, ChevronDown, Filter } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 import {
   useReactTable,
   getCoreRowModel,
@@ -27,20 +41,173 @@ interface EntriesTableProps {
   data: Entry[]
   issueType: string
   isFullscreen?: boolean
+  onEditingChange?: (isEditing: boolean) => void
 }
 
 const columnHelper = createColumnHelper<Entry>()
 
-export default function EntriesTable({ data, issueType, isFullscreen }: EntriesTableProps) {
+export default function EntriesTable({ data, issueType, isFullscreen, onEditingChange }: EntriesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [activeFilterColumn, setActiveFilterColumn] = useState<string | null>(null)
+  const [editedData, setEditedData] = useState<Entry[]>(data)
+  const [editingCell, setEditingCell] = useState<{ rowId: string; columnId: string } | null>(null)
+
+  useEffect(() => {
+    onEditingChange?.(editingCell !== null)
+  }, [editingCell, onEditingChange])
+
+  useEffect(() => {
+    setEditedData(data)
+  }, [data])
+
+  const updateCellValue = (rowId: string, columnId: keyof Entry, value: string | number) => {
+    setEditedData((prev) =>
+      prev.map((row) => (row.id === rowId ? { ...row, [columnId]: value } : row))
+    )
+  }
+
+  const EditableCell = ({ rowId, columnId, value, type = "text" }: { rowId: string; columnId: keyof Entry; value: string | number; type?: "text" | "number" | "date" }) => {
+    const isEditing = editingCell?.rowId === rowId && editingCell?.columnId === columnId
+    const [localValue, setLocalValue] = useState(value)
+
+    useEffect(() => {
+      setLocalValue(value)
+    }, [value])
+
+    const handleDoubleClick = () => {
+      setEditingCell({ rowId, columnId })
+      setLocalValue(value)
+    }
+
+    const handleBlur = () => {
+      updateCellValue(rowId, columnId, type === "number" ? parseFloat(localValue as string) || 0 : localValue)
+      setEditingCell(null)
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleBlur()
+      } else if (e.key === "Escape") {
+        setLocalValue(value)
+        setEditingCell(null)
+      }
+    }
+
+    if (isEditing) {
+      return (
+        <input
+          type={type}
+          value={localValue}
+          onChange={(e) => setLocalValue(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          autoFocus
+          className="w-full px-1 py-0.5 border border-primary rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      )
+    }
+
+    return (
+      <div onDoubleClick={handleDoubleClick} className="cursor-text min-h-[20px]">
+        {value}
+      </div>
+    )
+  }
+
+  const SearchableDropdownCell = ({ rowId, value }: { rowId: string; value: string }) => {
+    const isEditing = editingCell?.rowId === rowId && editingCell?.columnId === "timekeeper"
+    const [open, setOpen] = useState(false)
+
+    // Get unique timekeepers from the data
+    const allTimekeepers = useMemo(() => {
+      const keepers = new Set(editedData.map(entry => entry.timekeeper))
+      return Array.from(keepers).sort()
+    }, [editedData])
+
+    useEffect(() => {
+      if (isEditing) {
+        setOpen(true)
+      }
+    }, [isEditing])
+
+    const handleDoubleClick = () => {
+      setEditingCell({ rowId, columnId: "timekeeper" })
+    }
+
+    const handleSelect = (timekeeper: string) => {
+      updateCellValue(rowId, "timekeeper", timekeeper)
+      setEditingCell(null)
+      setOpen(false)
+    }
+
+    if (isEditing) {
+      return (
+        <Popover open={open} onOpenChange={(newOpen) => {
+          setOpen(newOpen)
+          if (!newOpen) {
+            setEditingCell(null)
+          }
+        }}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between h-7 px-2 text-sm font-normal"
+            >
+              {value}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search timekeeper..." />
+              <CommandList>
+                <CommandEmpty>No timekeeper found.</CommandEmpty>
+                <CommandGroup>
+                  {allTimekeepers.map((timekeeper) => (
+                    <CommandItem
+                      key={timekeeper}
+                      value={timekeeper}
+                      onSelect={() => handleSelect(timekeeper)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === timekeeper ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {timekeeper}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      )
+    }
+
+    return (
+      <div onDoubleClick={handleDoubleClick} className="cursor-text min-h-[20px]">
+        {value}
+      </div>
+    )
+  }
 
   const columns = useMemo(
     () => [
       columnHelper.accessor("date", {
         header: "Date",
-        cell: (info) => info.getValue(),
+        cell: (info) => (
+          <EditableCell
+            rowId={info.row.original.id}
+            columnId="date"
+            value={info.getValue()}
+            type="date"
+          />
+        ),
         sortingFn: (rowA, rowB) => {
           const dateA = new Date(rowA.original.date).getTime()
           const dateB = new Date(rowB.original.date).getTime()
@@ -49,15 +216,33 @@ export default function EntriesTable({ data, issueType, isFullscreen }: EntriesT
       }),
       columnHelper.accessor("timekeeper", {
         header: "Time Keeper",
-        cell: (info) => info.getValue(),
+        cell: (info) => (
+          <SearchableDropdownCell
+            rowId={info.row.original.id}
+            value={info.getValue()}
+          />
+        ),
       }),
       columnHelper.accessor("duration", {
         header: "Duration",
-        cell: (info) => `${info.getValue()}h`,
+        cell: (info) => (
+          <EditableCell
+            rowId={info.row.original.id}
+            columnId="duration"
+            value={info.getValue()}
+            type="number"
+          />
+        ),
       }),
       columnHelper.accessor("task", {
         header: "Task",
-        cell: (info) => info.getValue(),
+        cell: (info) => (
+          <EditableCell
+            rowId={info.row.original.id}
+            columnId="task"
+            value={info.getValue()}
+          />
+        ),
       }),
       columnHelper.display({
         id: "actions",
@@ -69,11 +254,11 @@ export default function EntriesTable({ data, issueType, isFullscreen }: EntriesT
         ),
       }),
     ],
-    []
+    [editingCell]
   )
 
   const table = useReactTable({
-    data,
+    data: editedData,
     columns,
     state: {
       sorting,
@@ -202,7 +387,13 @@ export default function EntriesTable({ data, issueType, isFullscreen }: EntriesT
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b border-border hover:bg-card/50 transition-colors">
+              <tr 
+                key={row.id} 
+                className={cn(
+                  "border-b border-border hover:bg-card/50 transition-colors",
+                  editingCell?.rowId === row.original.id && "bg-card/50"
+                )}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-4 py-3 text-sm">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -16,6 +16,7 @@ export default function IssueSection({ title, description, issueType, data }: Is
   const [isAnimating, setIsAnimating] = useState(false)
   const [placeholderRect, setPlaceholderRect] = useState<{ width: number; height: number } | null>(null)
   const [fixedPosition, setFixedPosition] = useState<{ top: number; left: number; width: number; height: number } | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleFullscreen = () => {
@@ -76,7 +77,7 @@ export default function IssueSection({ title, description, issueType, data }: Is
         className={`scroll-mt-24 px-8 py-8 shadow-md rounded-md group bg-background mb-16 ${
           isFullscreen 
             ? "fixed z-50 transition-[top,left,right,bottom] duration-300 ease-in-out flex flex-col" 
-            : "transition-all duration-500 hover:shadow-xl hover:scale-105 origin-center relative"
+            : `transition-all duration-500 hover:shadow-xl hover:scale-105 origin-center relative ${isEditing ? "shadow-xl scale-105" : ""}`
         }`}
         style={isFullscreen && fixedPosition ? (
           isAnimating ? {
@@ -117,7 +118,7 @@ export default function IssueSection({ title, description, issueType, data }: Is
 
         {/* Table container */}
         <div className={`relative border-border rounded-sm overflow-hidden border-0 ${isFullscreen ? "flex-1" : ""}`}>
-          <EntriesTable data={data} issueType={issueType} isFullscreen={isFullscreen} />
+          <EntriesTable data={data} issueType={issueType} isFullscreen={isFullscreen} onEditingChange={setIsEditing} />
         </div>
 
         {/* Empty state */}
