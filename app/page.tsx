@@ -8,7 +8,7 @@ export default function ReviewPage() {
       {/* Refined header */}
       <header className="border-b border-border bg-card sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-8 py-8">
-          <h1 className="text-4xl font-serif font-light tracking-tight mb-2">Timesheet Review</h1>
+          <h1 className="text-4xl font-serif font-light tracking-tight mb-2">FixMyTime</h1>
           <p className="text-muted-foreground text-sm">Review and resolve issues in your timesheet entries</p>
         </div>
       </header>

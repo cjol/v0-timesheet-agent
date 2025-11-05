@@ -8,7 +8,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Timesheet Review",
+  title: "FixMyTime",
   description: "Review and analyze timesheets",
   generator: "v0.app",
 }
