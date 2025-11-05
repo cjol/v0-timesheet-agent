@@ -74,8 +74,8 @@ export default function TableOfContents({ items }: TableOfContentsProps) {
   }
 
   return (
-    <nav className="fixed left-8 top-56 hidden xl:block w-64">
-      <div className="sticky top-56">
+    <nav className="fixed left-8 hidden xl:block w-64" style={{ top: "20vh" }}>
+      <div className="sticky" >
         <ul className="space-y-2 border-l border-border">
           {items.map((item) => (
             <li key={item.id}>

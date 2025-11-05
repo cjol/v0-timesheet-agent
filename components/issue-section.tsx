@@ -23,10 +23,10 @@ export default function IssueSection({ title, description, issueType, data }: Is
     if (!isFullscreen && containerRef.current) {
       const element = containerRef.current
       const rect = element.getBoundingClientRect()
-      
-      setPlaceholderRect({ 
-        width: element.offsetWidth, 
-        height: element.offsetHeight 
+
+      setPlaceholderRect({
+        width: element.offsetWidth,
+        height: element.offsetHeight
       })
       // Use getBoundingClientRect for position and size (includes transforms)
       setFixedPosition({
@@ -37,7 +37,7 @@ export default function IssueSection({ title, description, issueType, data }: Is
       })
       setIsFullscreen(true)
       setIsAnimating(true)
-      
+
       // Trigger animation after a frame
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -47,7 +47,7 @@ export default function IssueSection({ title, description, issueType, data }: Is
     } else {
       // Reverse animation: go from fullscreen back to original position
       setIsAnimating(true)
-      
+
       // Wait for animation to complete before removing fullscreen
       setTimeout(() => {
         setIsFullscreen(false)
@@ -62,22 +62,22 @@ export default function IssueSection({ title, description, issueType, data }: Is
     <>
       {/* Placeholder to prevent reflow when fullscreen */}
       {isFullscreen && placeholderRect && (
-        <div 
+        <div
           className="mb-16"
-          style={{ 
-            width: `${placeholderRect.width}px`, 
+          style={{
+            width: `${placeholderRect.width}px`,
             height: `${placeholderRect.height}px`
-          }} 
+          }}
         />
       )}
 
       <section
         id={issueType}
         ref={containerRef}
-        className={`scroll-mt-24 px-8 py-8 shadow-md rounded-md group bg-background mb-16 ${
-          isFullscreen 
-            ? "fixed z-50 transition-[top,left,right,bottom] duration-300 ease-in-out flex flex-col" 
-            : `transition-all duration-500 hover:shadow-xl hover:scale-105 origin-center relative ${isEditing ? "shadow-xl scale-105" : ""}`
+        className={`scroll-mt-24 px-8 py-8 rounded-md group bg-background mb-16 ${
+          isFullscreen
+            ? "fixed z-50 transition-[top,left,right,bottom] duration-300 ease-in-out flex flex-col"
+            : `transition-all duration-500 hover:shadow-md hover:scale-105 origin-center relative ${isEditing ? "shadow-md scale-105" : ""}`
         }`}
         style={isFullscreen && fixedPosition ? (
           isAnimating ? {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
-import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -247,10 +247,36 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
       columnHelper.display({
         id: "actions",
         header: "Actions",
-        cell: () => (
-          <Button variant="outline" size="sm" className="h-7 px-2 text-xs bg-transparent">
-            Review
-          </Button>
+        cell: (info) => (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 hover:bg-green-500/10 hover:text-green-600 cursor-pointer"
+              onClick={() => console.log('Approve', info.row.original.id)}
+              title="Approve"
+            >
+              <CheckCircle className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 hover:bg-red-500/10 hover:text-red-600 cursor-pointer"
+              onClick={() => console.log('Reject', info.row.original.id)}
+              title="Reject"
+            >
+              <XCircle className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 hover:bg-blue-500/10 hover:text-blue-600 cursor-pointer"
+              onClick={() => console.log('View Details', info.row.original.id)}
+              title="View Details"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         ),
       }),
     ],
@@ -414,6 +440,24 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
             </tr>
           </tfoot>
         </table>
+      </div>
+      <div className="flex items-center justify-end gap-2 px-4 py-3 bg-card border-t border-border">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 px-3 text-xs hover:bg-green-500/10 hover:text-green-600 hover:border-green-600 cursor-pointer"
+          onClick={() => console.log('Approve All')}
+        >
+          Approve All
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 px-3 text-xs hover:bg-red-500/10 hover:text-red-600 hover:border-red-600 cursor-pointer"
+          onClick={() => console.log('Exclude All')}
+        >
+          Exclude All
+        </Button>
       </div>
     </div>
   )
