@@ -1,10 +1,34 @@
 "use client"
 import IssueSection from "@/components/issue-section"
+import TableOfContents from "@/components/table-of-contents"
 import { mockTimesheetData } from "@/lib/mock-data"
 
 export default function ReviewPage() {
+  const sections = [
+    { 
+      id: "insufficient-detail", 
+      title: "Insufficient Detail",
+      count: mockTimesheetData.filter((entry) => entry.issue === "insufficient-detail").length
+    },
+    { 
+      id: "poor-writing", 
+      title: "Poor Writing Style",
+      count: mockTimesheetData.filter((entry) => entry.issue === "poor-writing").length
+    },
+    { 
+      id: "unusual-duration", 
+      title: "Unusual Duration",
+      count: mockTimesheetData.filter((entry) => entry.issue === "unusual-duration").length
+    },
+    { 
+      id: "missing-info", 
+      title: "Missing Information",
+      count: mockTimesheetData.filter((entry) => entry.issue === "missing-info").length
+    },
+  ]
+
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-background text-foreground relative">
       {/* Refined header */}
       <header className="border-b border-border bg-card sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-8 py-8">
@@ -12,6 +36,9 @@ export default function ReviewPage() {
           <p className="text-muted-foreground text-sm">Review and resolve issues in your timesheet entries</p>
         </div>
       </header>
+
+      {/* Table of Contents */}
+      <TableOfContents items={sections} />
 
       {/* Main content - document-like layout */}
       <div className="max-w-6xl mx-auto px-8 py-12">

@@ -71,6 +71,7 @@ export default function IssueSection({ title, description, issueType, data }: Is
       )}
 
       <section
+        id={issueType}
         ref={containerRef}
         className={`scroll-mt-24 px-8 py-8 shadow-md rounded-md group bg-background mb-16 ${
           isFullscreen 

@@ -1,8 +1,18 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { ChevronUp, ChevronDown } from "lucide-react"
+import { useState, useMemo, useRef, useEffect } from "react"
+import { ChevronUp, ChevronDown, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender,
+  createColumnHelper,
+  type ColumnFiltersState,
+  type SortingState,
+} from "@tanstack/react-table"
 
 interface Entry {
   id: string
@@ -19,95 +29,158 @@ interface EntriesTableProps {
   isFullscreen?: boolean
 }
 
-type SortField = "date" | "timekeeper" | "duration" | "task"
-type SortDirection = "asc" | "desc"
+const columnHelper = createColumnHelper<Entry>()
 
 export default function EntriesTable({ data, issueType, isFullscreen }: EntriesTableProps) {
-  const [sortField, setSortField] = useState<SortField>("date")
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
-  const [filterText, setFilterText] = useState("")
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [activeFilterColumn, setActiveFilterColumn] = useState<string | null>(null)
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("asc")
-    }
-  }
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("date", {
+        header: "Date",
+        cell: (info) => info.getValue(),
+        sortingFn: (rowA, rowB) => {
+          const dateA = new Date(rowA.original.date).getTime()
+          const dateB = new Date(rowB.original.date).getTime()
+          return dateA - dateB
+        },
+      }),
+      columnHelper.accessor("timekeeper", {
+        header: "Time Keeper",
+        cell: (info) => info.getValue(),
+      }),
+      columnHelper.accessor("duration", {
+        header: "Duration",
+        cell: (info) => `${info.getValue()}h`,
+      }),
+      columnHelper.accessor("task", {
+        header: "Task",
+        cell: (info) => info.getValue(),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        cell: () => (
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs bg-transparent">
+            Review
+          </Button>
+        ),
+      }),
+    ],
+    []
+  )
 
-  const [columnFilters, setColumnFilters] = useState<Partial<Record<SortField, string>>>({})
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  })
 
-  const sortedAndFiltered = useMemo(() => {
-    let result = [...data]
-
-    Object.entries(columnFilters).forEach(([field, filterValue]) => {
-      if (filterValue) {
-        const lowerFilter = filterValue.toLowerCase()
-        result = result.filter((entry) => {
-          const fieldValue = String(entry[field as SortField]).toLowerCase()
-          return fieldValue.includes(lowerFilter)
-        })
-      }
-    })
-
-    // Sort
-    result.sort((a, b) => {
-      let aVal = a[sortField]
-      let bVal = b[sortField]
-
-      if (sortField === "date") {
-        aVal = new Date(a.date).getTime()
-        bVal = new Date(b.date).getTime()
-      } else if (sortField === "duration") {
-        aVal = Number.parseFloat(String(aVal))
-        bVal = Number.parseFloat(String(bVal))
-      }
-
-      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1
-      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1
-      return 0
-    })
-
-    return result
-  }, [data, sortField, sortDirection, columnFilters])
-
+  const filteredRows = table.getFilteredRowModel().rows
   const stats = {
-    count: sortedAndFiltered.length,
-    totalDuration: sortedAndFiltered.reduce((sum, entry) => sum + entry.duration, 0),
+    count: filteredRows.length,
+    totalDuration: filteredRows.reduce((sum, row) => sum + row.original.duration, 0),
     avgDuration:
-      sortedAndFiltered.length > 0
-        ? (sortedAndFiltered.reduce((sum, entry) => sum + entry.duration, 0) / sortedAndFiltered.length).toFixed(1)
+      filteredRows.length > 0
+        ? (filteredRows.reduce((sum, row) => sum + row.original.duration, 0) / filteredRows.length).toFixed(1)
         : 0,
   }
 
-  const SortHeaderCell = ({ field, label }: { field: SortField; label: string }) => {
-    const [showFilter, setShowFilter] = useState(false)
+  const SortHeaderCell = ({ headerId, label }: { headerId: string; label: string }) => {
+    const [isHovered, setIsHovered] = useState(false)
+    const filterPopupRef = useRef<HTMLDivElement>(null)
+    const header = table.getHeaderGroups()[0].headers.find((h) => h.id === headerId)
+    const canSort = header?.column.getCanSort()
+    const isSorted = header?.column.getIsSorted()
+    const filterValue = (header?.column.getFilterValue() as string) ?? ""
+    const hasActiveFilter = filterValue.length > 0
+    const isFilterOpen = activeFilterColumn === headerId
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+          setActiveFilterColumn(null)
+        }
+      }
+
+      if (isFilterOpen) {
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+      }
+    }, [isFilterOpen])
+
+    const toggleFilter = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      setActiveFilterColumn(isFilterOpen ? null : headerId)
+    }
+
+    const showFilterIcon = isHovered || hasActiveFilter || isFilterOpen
 
     return (
       <th className="text-sm font-medium text-foreground py-3 px-4 text-left">
-        <div className="flex items-center gap-2 relative">
+        <div
+          className="flex items-center gap-2 relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <button
-            onClick={() => handleSort(field)}
-            onMouseEnter={() => setShowFilter(true)}
-            onMouseLeave={() => setShowFilter(false)}
-            className="flex items-center gap-2 font-medium text-sm text-foreground hover:text-accent transition-colors"
+            onClick={() => canSort && header?.column.toggleSorting()}
+            className="flex items-center gap-2 font-medium text-sm text-foreground hover:text-primary transition-colors"
           >
             {label}
-            {sortField === field && (sortDirection === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+            {isSorted && (isSorted === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
           </button>
 
-          {showFilter && (
-            <input
-              type="text"
-              placeholder="Filter..."
-              value={columnFilters[field] || ""}
-              onChange={(e) => setColumnFilters({ ...columnFilters, [field]: e.target.value })}
-              onClick={(e) => e.stopPropagation()}
-              onMouseEnter={() => setShowFilter(true)}
-              onMouseLeave={() => setShowFilter(false)}
-              className="absolute top-full left-0 mt-1 w-32 px-2 py-1 text-xs border border-input rounded-sm bg-background placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring z-10"
-            />
+          {canSort && (
+            <button
+              onClick={toggleFilter}
+              className={`p-0.5 rounded transition-all ${
+                showFilterIcon ? "opacity-100" : "opacity-0"
+              } ${
+                hasActiveFilter
+                  ? "text-primary hover:text-primary/80"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Filter size={14} />
+            </button>
+          )}
+
+          {isFilterOpen && (
+            <div
+              ref={filterPopupRef}
+              className="absolute top-full left-0 mt-1 p-2 bg-popover border border-border rounded-md shadow-md z-30"
+            >
+              <input
+                type="text"
+                placeholder="Filter..."
+                value={filterValue}
+                onChange={(e) => header?.column.setFilterValue(e.target.value)}
+                autoFocus
+                className="w-40 px-2 py-1.5 text-xs border border-input rounded-sm bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              {hasActiveFilter && (
+                <button
+                  onClick={() => {
+                    header?.column.setFilterValue("")
+                    setActiveFilterColumn(null)
+                  }}
+                  className="mt-1 w-full px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Clear filter
+                </button>
+              )}
+            </div>
           )}
         </div>
       </th>
@@ -120,29 +193,25 @@ export default function EntriesTable({ data, issueType, isFullscreen }: EntriesT
         <table className="w-full border-collapse">
           <thead className="sticky top-0 bg-card z-20">
             <tr className="border-b border-border">
-              <SortHeaderCell field="date" label="Date" />
-              <SortHeaderCell field="timekeeper" label="Time Keeper" />
-              <SortHeaderCell field="duration" label="Duration" />
-              <SortHeaderCell field="task" label="Task" />
+              <SortHeaderCell headerId="date" label="Date" />
+              <SortHeaderCell headerId="timekeeper" label="Time Keeper" />
+              <SortHeaderCell headerId="duration" label="Duration" />
+              <SortHeaderCell headerId="task" label="Task" />
               <th className="text-sm font-medium text-foreground py-3 px-4 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {sortedAndFiltered.map((entry) => (
-              <tr key={entry.id} className="border-b border-border hover:bg-card/50 transition-colors">
-                <td className="px-4 py-3 text-sm">{entry.date}</td>
-                <td className="px-4 py-3 text-sm">{entry.timekeeper}</td>
-                <td className="px-4 py-3 text-sm">{entry.duration}h</td>
-                <td className="px-4 py-3 text-sm text-foreground/80">{entry.task}</td>
-                <td className="px-4 py-3 text-sm">
-                  <Button variant="outline" size="sm" className="h-7 px-2 text-xs bg-transparent">
-                    Review
-                  </Button>
-                </td>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="border-b border-border hover:bg-card/50 transition-colors">
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-4 py-3 text-sm">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
-          <tfoot className="sticky bottom-0 bg-card/30 z-20">
+          <tfoot className="sticky bottom-0 bg-card z-20">
             <tr className="border-t-2 border-foreground">
               <td className="px-4 py-3 text-sm font-medium">
                 {stats.count} {stats.count === 1 ? "entry" : "entries"}
