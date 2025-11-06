@@ -8,14 +8,16 @@ import ReviewHistoryDialog from "@/components/review-history-dialog"
 import HtmlPreviewModal from "@/components/html-preview-modal"
 import EntriesTable from "@/components/entries-table"
 import { useTimesheetData, useBills, useBillDocuments } from "@/lib/hooks"
+import { useMatter } from "@/contexts/matter-context"
 import { getDocumentReviewers, type DocumentReviewer } from "@/lib/mock-data"
 
 export default function BillDetailPage() {
   const params = useParams()
   const billId = params.billId as string
-  const { data: mockTimesheetData = [] } = useTimesheetData()
-  const { data: mockBills = [] } = useBills()
-  const { data: mockBillDocuments = [] } = useBillDocuments()
+  const { currentMatterId } = useMatter()
+  const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
+  const { data: mockBills = [] } = useBills(currentMatterId)
+  const { data: mockBillDocuments = [] } = useBillDocuments(currentMatterId)
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null)
@@ -196,9 +198,9 @@ export default function BillDetailPage() {
                       <Eye className="w-5 h-5 text-muted-foreground" />
                     </button>
                   ) : (
-                    <a 
-                      href={doc.downloadUrl} 
-                      className="p-2 hover:bg-muted rounded transition-colors" 
+                    <a
+                      href={doc.downloadUrl}
+                      className="p-2 hover:bg-muted rounded transition-colors"
                       title="Download"
                       onClick={(e) => e.stopPropagation()}
                     >

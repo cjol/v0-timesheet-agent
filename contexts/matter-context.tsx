@@ -13,19 +13,21 @@ const MatterContext = createContext<MatterContextType | undefined>(undefined)
 
 export function MatterProvider({ children }: { children: ReactNode }) {
   const { data: mockMatters = [] } = useMatters()
-  const { data: mockMatterContext } = useMatterContextData()
-  
+
   // Default to the first matter (Project Blackstone)
   const [currentMatterId, setCurrentMatterId] = useState(mockMatters[0]?.id || "")
-  
+
   useEffect(() => {
     if (mockMatters.length > 0 && !currentMatterId) {
       setCurrentMatterId(mockMatters[0].id)
     }
   }, [mockMatters, currentMatterId])
-  
-  const currentMatter = mockMatters.find((m) => m.id === currentMatterId) || mockMatters[0]
-  
+
+  // Ensure we always have a valid matterId
+  const effectiveMatterId = currentMatterId || mockMatters[0]?.id || ""
+  const currentMatter = mockMatters.find((m) => m.id === effectiveMatterId) || mockMatters[0]
+  const { data: mockMatterContext } = useMatterContextData(effectiveMatterId)
+
   const setCurrentMatter = (matterId: string) => {
     setCurrentMatterId(matterId)
   }
@@ -33,7 +35,7 @@ export function MatterProvider({ children }: { children: ReactNode }) {
   return (
     <MatterContext.Provider
       value={{
-        currentMatterId,
+        currentMatterId: effectiveMatterId,
         currentMatterName: currentMatter?.name || "",
         currentMatterData: mockMatterContext, // In the future, this would be fetched based on matterId
         setCurrentMatter,

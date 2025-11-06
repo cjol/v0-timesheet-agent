@@ -4,13 +4,15 @@ import { CheckCircle, XCircle } from "lucide-react"
 import IssueSection from "@/components/issue-section"
 import TableOfContents from "@/components/table-of-contents"
 import { useTimesheetData, useBills, useIssueSectionConfigs } from "@/lib/hooks"
+import { useMatter } from "@/contexts/matter-context"
 
 export default function EntriesForReviewPage() {
   const params = useParams()
   const billId = params.billId as string
-  const { data: mockTimesheetData = [] } = useTimesheetData()
-  const { data: mockBills = [] } = useBills()
-  const { data: issueSectionConfigs = [] } = useIssueSectionConfigs()
+  const { currentMatterId } = useMatter()
+  const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
+  const { data: mockBills = [] } = useBills(currentMatterId)
+  const { data: issueSectionConfigs = [] } = useIssueSectionConfigs(currentMatterId)
 
   // Find the bill to display its period in the breadcrumb
   const bill = mockBills.find((b) => b.id === billId)

@@ -3,13 +3,15 @@ import { useState, useEffect } from "react"
 import { Edit2, Save, X, Plus } from "lucide-react"
 import SettingsSection from "@/components/settings-section"
 import { useTimekeepers, useOtherParticipants, useContextDocuments, useMatterContext } from "@/lib/hooks"
+import { useMatter } from "@/contexts/matter-context"
 
 export default function SettingsPage() {
-  const { data: mockMatterContext } = useMatterContext()
-  const { data: mockContextDocuments = [] } = useContextDocuments()
-  const { data: mockTimekeepers = [] } = useTimekeepers()
-  const { data: mockOtherParticipants = [] } = useOtherParticipants()
-  
+  const { currentMatterId } = useMatter()
+  const { data: mockMatterContext } = useMatterContext(currentMatterId)
+  const { data: mockContextDocuments = [] } = useContextDocuments(currentMatterId)
+  const { data: mockTimekeepers = [] } = useTimekeepers(currentMatterId)
+  const { data: mockOtherParticipants = [] } = useOtherParticipants(currentMatterId)
+
   const [isEditingContext, setIsEditingContext] = useState(false)
   const [contextDescription, setContextDescription] = useState(mockMatterContext?.description || "")
   const [billingArrangements, setBillingArrangements] = useState(mockMatterContext?.billingArrangements || [])
