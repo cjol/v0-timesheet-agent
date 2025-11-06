@@ -5,12 +5,11 @@ import Link from "next/link"
 import IssueSection from "@/components/issue-section"
 import TableOfContents from "@/components/table-of-contents"
 import StatTile from "@/components/stat-tile"
-import { mockTimesheetData } from "@/lib/mock-data"
-import { mockBills } from "@/lib/mock-data"
+import { mockTimesheetData, mockBills, mockMatterContext, mockMatterOptions } from "@/lib/mock-data"
 
 export default function HomePage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [selectedMatter, setSelectedMatter] = useState("Project Blackstone")
+  const [selectedMatter, setSelectedMatter] = useState(mockMatterContext.name)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -133,42 +132,18 @@ export default function HomePage() {
                   <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-md shadow-lg z-50">
                     <div className="py-1">
                       {/* Matter Options */}
-                      <button
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
-                        onClick={() => {
-                          setSelectedMatter("Project Blackstone")
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        Project Blackstone
-                      </button>
-                      <button
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
-                        onClick={() => {
-                          setSelectedMatter("Anderson Corp Litigation")
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        Anderson Corp Litigation
-                      </button>
-                      <button
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
-                        onClick={() => {
-                          setSelectedMatter("Smith Estate Planning")
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        Smith Estate Planning
-                      </button>
-                      <button
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
-                        onClick={() => {
-                          setSelectedMatter("TechStart Acquisition")
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        TechStart Acquisition
-                      </button>
+                        {mockMatterOptions.map((matter) => (
+                          <button
+                            key={matter.id}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
+                            onClick={() => {
+                              setSelectedMatter(matter.name)
+                              setIsDropdownOpen(false)
+                            }}
+                          >
+                            {matter.name}
+                          </button>
+                        ))}
 
                       {/* Divider */}
                       <div className="border-t border-border my-1" />
@@ -196,8 +171,8 @@ export default function HomePage() {
       <div className="max-w-6xl mx-auto px-8 py-12">
         {/* Page Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-2">Project Blackstone</h1>
-          <p className="text-muted-foreground">Matter overview and billing management</p>
+            <h1 className="text-4xl font-bold mb-2">{mockMatterContext.name}</h1>
+            <p className="text-muted-foreground">Matter overview and billing management</p>
         </div>
 
         {/* Statistics Tiles */}
@@ -327,36 +302,21 @@ export default function HomePage() {
         <div>
           <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Recent Activity</h2>
           <div className="space-y-3">
-            <Link
-              href="/bills/bill-001"
-              className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <div>
-                <h4 className="font-medium">October 2025 - Project Blackstone</h4>
-                <p className="text-sm text-muted-foreground">40 entries • Draft</p>
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">$12,450</span>
-            </Link>
-            <Link
-              href="/bills/bill-002"
-              className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <div>
-                <h4 className="font-medium">September 2025 - Anderson Corp</h4>
-                <p className="text-sm text-muted-foreground">28 entries • Draft</p>
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">$8,900</span>
-            </Link>
-            <Link
-              href="/bills/bill-003"
-              className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <div>
-                <h4 className="font-medium">August 2025 - Smith Estate</h4>
-                <p className="text-sm text-muted-foreground">15 entries • Draft</p>
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">$4,200</span>
-            </Link>
+              {mockBills.slice(0, 3).map((bill) => (
+                <Link
+                  key={bill.id}
+                  href={`/bills/${bill.id}`}
+                  className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div>
+                    <h4 className="font-medium">{bill.period} - {bill.matter}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {bill.entries} entries • {bill.status}
+                    </p>
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">${bill.amount.toLocaleString()}</span>
+                </Link>
+              ))}
           </div>
         </div>
 

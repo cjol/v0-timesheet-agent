@@ -2,10 +2,11 @@
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { mockMatterContext, mockMatterOptions } from "@/lib/mock-data"
 
 export default function MainNav() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [selectedMatter, setSelectedMatter] = useState("Project Blackstone")
+  const [selectedMatter, setSelectedMatter] = useState(mockMatterContext.name)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
@@ -91,23 +92,18 @@ export default function MainNav() {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-md shadow-lg z-50">
                   <div className="py-1">
-                    {[
-                      "Project Blackstone",
-                      "Anderson Corp Litigation",
-                      "Smith Estate Planning",
-                      "TechStart Acquisition",
-                    ].map((matter) => (
-                      <button
-                        key={matter}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
-                        onClick={() => {
-                          setSelectedMatter(matter)
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        {matter}
-                      </button>
-                    ))}
+                      {mockMatterOptions.map((matter) => (
+                        <button
+                          key={matter.id}
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
+                          onClick={() => {
+                            setSelectedMatter(matter.name)
+                            setIsDropdownOpen(false)
+                          }}
+                        >
+                          {matter.name}
+                        </button>
+                      ))}
 
                     {/* Divider */}
                     <div className="border-t border-border my-1" />

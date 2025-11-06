@@ -1,6 +1,6 @@
 "use client"
 import TimeEntriesTable from "@/components/time-entries-table"
-import { mockTimesheetData } from "@/lib/mock-data"
+import { mockTimesheetData, mockMatterContext } from "@/lib/mock-data"
 
 export default function TimeEntriesPage() {
   return (
@@ -9,7 +9,7 @@ export default function TimeEntriesPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Time Entries</h1>
           <p className="text-muted-foreground">
-            View all time entries for Project Blackstone. Click on column headers to sort and filter.
+            View all time entries for {mockMatterContext.name}. Click on column headers to sort and filter.
           </p>
         </div>
 

@@ -2,21 +2,39 @@
 import { useState } from "react"
 import { Download, MessageCircle, Lock } from "lucide-react"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import ReviewStatusBadge from "@/components/review-status-badge"
 import RequestReviewModal from "@/components/request-review-modal"
 import TimeEntriesTable from "@/components/time-entries-table"
-import { mockBillDetail, mockTimesheetData } from "@/lib/mock-data"
+import { getBillDetail, mockTimesheetData, mockOtherParticipants } from "@/lib/mock-data"
 
-export default function BillDetailPage() {
+interface BillDetailPageProps {
+  params: {
+    billId: string
+  }
+}
+
+export default function BillDetailPage({ params }: BillDetailPageProps) {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState<string | null>(null)
 
-  const documents = mockBillDetail.documents
-  const participants = [
-    { id: "p-1", name: "John Smith" },
-    { id: "p-2", name: "Linda Garcia" },
-    { id: "p-3", name: "David Chen" },
-  ]
+  const billDetail = getBillDetail(params.billId)
+
+  if (!billDetail) {
+    notFound()
+  }
+
+  const documents = billDetail.documents ?? []
+
+  const participantMap = new Map(mockOtherParticipants.map((participant) => [participant.id, participant]))
+  const participants = (billDetail.participantIds ?? [])
+    .map((participantId) => participantMap.get(participantId))
+    .filter((participant): participant is NonNullable<typeof participant> => Boolean(participant))
+
+  const timesheetEntryIds = new Set(billDetail.timesheetEntryIds ?? [])
+  const entryData = timesheetEntryIds.size
+    ? mockTimesheetData.filter((entry) => timesheetEntryIds.has(entry.id))
+    : mockTimesheetData.slice(0, 10)
 
   const getReviewersList = (doc: (typeof documents)[0]) => {
     if (!doc.reviewers) return "No one"
@@ -25,23 +43,23 @@ export default function BillDetailPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/bills" className="text-sm text-primary hover:underline mb-4 block">
-            ← Back to Bills
-          </Link>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{mockBillDetail.period}</h1>
-              <p className="text-muted-foreground">{mockBillDetail.matter}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold">${mockBillDetail.amount.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">{mockBillDetail.entries} entries</p>
+        <div className="max-w-7xl mx-auto px-8 py-12">
+          {/* Header */}
+          <div className="mb-8">
+            <Link href="/bills" className="text-sm text-primary hover:underline mb-4 block">
+              ← Back to Bills
+            </Link>
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">{billDetail.period}</h1>
+                <p className="text-muted-foreground">{billDetail.matter}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-bold">${billDetail.amount.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">{billDetail.entries} entries</p>
+              </div>
             </div>
           </div>
-        </div>
 
         {/* Action Buttons */}
         <div className="flex gap-3 mb-8">
@@ -106,7 +124,7 @@ export default function BillDetailPage() {
         {/* Time Entries Section */}
         <div className="mb-12">
           <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Time Entries</h2>
-          <TimeEntriesTable data={mockTimesheetData.slice(0, 10)} />
+          <TimeEntriesTable data={entryData} />
         </div>
       </div>
 
@@ -114,7 +132,7 @@ export default function BillDetailPage() {
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         documents={documents.map((d) => ({ id: d.id, title: d.title }))}
-        participants={participants}
+        participants={participants.map((participant) => ({ id: participant.id, name: participant.name }))}
       />
     </main>
   )

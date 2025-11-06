@@ -2,7 +2,7 @@
 import { CheckCircle, XCircle } from "lucide-react"
 import IssueSection from "@/components/issue-section"
 import TableOfContents from "@/components/table-of-contents"
-import { mockTimesheetData } from "@/lib/mock-data"
+import { getBillDetail, mockTimesheetData } from "@/lib/mock-data"
 
 export default function EntriesForReviewPage() {
   const sections = [
@@ -28,6 +28,10 @@ export default function EntriesForReviewPage() {
     },
   ]
 
+  const billDetail = getBillDetail("bill-001")
+  const totalEntries = billDetail?.entries ?? mockTimesheetData.length
+  const totalIssues = billDetail?.issues ?? sections.reduce((sum, section) => sum + section.count, 0)
+
   return (
     <main className="min-h-screen bg-background text-foreground relative">
       {/* Main content - document-like layout */}
@@ -49,7 +53,7 @@ export default function EntriesForReviewPage() {
               </li>
               <li>
                 <a href="/bills/bill-001" className="hover:text-foreground transition-colors">
-                  October 2025
+                  {billDetail?.period ?? "Current Bill"}
                 </a>
               </li>
               <li>
@@ -66,8 +70,8 @@ export default function EntriesForReviewPage() {
 
           {/* Summary */}
           <p className="text-base text-muted-foreground leading-relaxed max-w-3xl">
-            <span className="font-semibold text-foreground">40 entries</span> from this bill have been flagged for your
-            review. <span className="font-semibold text-foreground">15</span> have suggestions for you to approve.
+            <span className="font-semibold text-foreground">{totalEntries} entries</span> from this bill have been flagged for
+            your review. <span className="font-semibold text-foreground">{totalIssues}</span> have suggestions for you to approve.
           </p>
 
           <p className="text-base text-muted-foreground leading-relaxed max-w-3xl mt-2">

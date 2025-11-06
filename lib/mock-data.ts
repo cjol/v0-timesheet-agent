@@ -1,3 +1,7 @@
+import projectBlackstoneData from "@/data/project-blackstone.json"
+
+export type TimesheetIssue = "insufficient-detail" | "poor-writing" | "unusual-duration" | "missing-info"
+
 export interface ActionLogEntry {
   message: string
   timestamp: string
@@ -11,448 +15,9 @@ export interface TimesheetEntry {
   timekeeper: string
   duration: number
   task: string
-  issue: string
+  issue: TimesheetIssue
   suggestedTask?: string
   actionLog?: ActionLogEntry[]
-}
-
-export const mockTimesheetData: TimesheetEntry[] = [
-  // Insufficient Detail
-  {
-    id: "1",
-    date: "2024-11-04",
-    timekeeper: "Sarah Chen",
-    duration: 2.5,
-    task: "Work on project",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Sarah Chen",
-        timestamp: "2024-11-04",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "2",
-    date: "2024-11-03",
-    timekeeper: "Marcus Johnson",
-    duration: 1.5,
-    task: "Meetings",
-    suggestedTask: "Meeting with design team to discuss UI/UX improvements",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Marcus Johnson.",
-        timestamp: "2024-11-03",
-        actor: "FixMyTimeAgent",
-      },
-      {
-        message: "Details received from Marcus Johnson, narrative re-drafted.",
-        timestamp: "2024-11-03",
-        actor: "FixMyTimeAgent",
-        undoable: true,
-      },
-    ],
-  },
-  {
-    id: "3",
-    date: "2024-11-02",
-    timekeeper: "Emma Rodriguez",
-    duration: 3,
-    task: "Development",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Emma Rodriguez",
-        timestamp: "2024-11-02",
-        actor: "FixMyTimeAgent",
-      },
-      {
-        message: "Follow-up reminder sent",
-        timestamp: "2024-11-03",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "14",
-    date: "2024-11-01",
-    timekeeper: "Alex Thompson",
-    duration: 2.25,
-    task: "Code review",
-    issue: "insufficient-detail",
-    suggestedTask: "Code review of authentication module pull request",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Alex Thompson",
-        timestamp: "2024-11-01",
-        actor: "FixMyTimeAgent",
-      },
-      {
-        message: "AI-generated task description applied",
-        timestamp: "2024-11-01",
-        actor: "FixMyTimeAgent",
-        undoable: true,
-      },
-    ],
-  },
-  {
-    id: "15",
-    date: "2024-10-31",
-    timekeeper: "Jordan Lee",
-    duration: 1.75,
-    task: "Testing phase",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Jordan Lee",
-        timestamp: "2024-10-31",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "16",
-    date: "2024-10-30",
-    timekeeper: "Casey Wong",
-    duration: 3.5,
-    task: "API work",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Casey Wong",
-        timestamp: "2024-10-30",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "17",
-    date: "2024-10-29",
-    timekeeper: "Morgan Smith",
-    duration: 2,
-    task: "Design collaboration",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Morgan Smith",
-        timestamp: "2024-10-29",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "18",
-    date: "2024-10-28",
-    timekeeper: "Riley Davis",
-    duration: 1.5,
-    task: "Documentation update",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Riley Davis",
-        timestamp: "2024-10-28",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "19",
-    date: "2024-10-27",
-    timekeeper: "Taylor Brown",
-    duration: 2.75,
-    task: "Client meeting prep",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Taylor Brown",
-        timestamp: "2024-10-27",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-  {
-    id: "20",
-    date: "2024-10-26",
-    timekeeper: "Harper Martin",
-    duration: 1.25,
-    task: "Infrastructure work",
-    issue: "insufficient-detail",
-    actionLog: [
-      {
-        message: "Email requesting clarification sent to Harper Martin",
-        timestamp: "2024-10-26",
-        actor: "FixMyTimeAgent",
-      },
-    ],
-  },
-
-  // Poor Writing Style
-  {
-    id: "4",
-    date: "2024-11-04",
-    timekeeper: "James Liu",
-    duration: 2,
-    task: "Fixed authentification bug",
-    issue: "poor-writing",
-    suggestedTask: "Fixed authentication bug",
-  },
-  {
-    id: "5",
-    date: "2024-11-01",
-    timekeeper: "Priya Patel",
-    duration: 1.75,
-    task: "updated the client dashboard with new metrics",
-    issue: "poor-writing",
-    suggestedTask: "Updated client dashboard with analytics metrics and charts",
-  },
-  {
-    id: "6",
-    date: "2024-10-31",
-    timekeeper: "David Kim",
-    duration: 2.25,
-    task: "URGENT FIX NEEDED ASAP!!!",
-    issue: "poor-writing",
-    suggestedTask: "Resolved critical payment processing error",
-  },
-  {
-    id: "21",
-    date: "2024-10-29",
-    timekeeper: "Sam Johnson",
-    duration: 1.5,
-    task: "working on stuff",
-    issue: "poor-writing",
-    suggestedTask: "Implemented user profile settings page",
-  },
-  {
-    id: "22",
-    date: "2024-10-28",
-    timekeeper: "Alex Chen",
-    duration: 2.5,
-    task: "fixed some things idk",
-    issue: "poor-writing",
-    suggestedTask: "Corrected responsive layout issues on mobile",
-  },
-  {
-    id: "23",
-    date: "2024-10-27",
-    timekeeper: "Jordan Rivera",
-    duration: 1.25,
-    task: "doing the update thing",
-    issue: "poor-writing",
-    suggestedTask: "Refined search algorithm and filters",
-  },
-  {
-    id: "24",
-    date: "2024-10-26",
-    timekeeper: "Casey White",
-    duration: 2,
-    task: "SUPER IMPORTANT WORK!!!!!!",
-    issue: "poor-writing",
-    suggestedTask: "Implemented data export functionality",
-  },
-  {
-    id: "25",
-    date: "2024-10-25",
-    timekeeper: "Morgan Davis",
-    duration: 1.75,
-    task: "stuff and things",
-    issue: "poor-writing",
-    suggestedTask: "Built notification system components",
-  },
-  {
-    id: "26",
-    date: "2024-10-24",
-    timekeeper: "Riley Taylor",
-    duration: 2.25,
-    task: "whatever needs doin",
-    issue: "poor-writing",
-    suggestedTask: "Completed API integration for third-party service",
-  },
-  {
-    id: "27",
-    date: "2024-10-23",
-    timekeeper: "Harper Anderson",
-    duration: 1.5,
-    task: "thing thing thing",
-    issue: "poor-writing",
-    suggestedTask: "Fixed authentication bug",
-  },
-
-  // Unusual Duration
-  {
-    id: "7",
-    date: "2024-11-04",
-    timekeeper: "Lisa Anderson",
-    duration: 0.25,
-    task: "Code review and feedback",
-    issue: "unusual-duration",
-  },
-  {
-    id: "8",
-    date: "2024-11-03",
-    timekeeper: "Robert Taylor",
-    duration: 7.5,
-    task: "UI component library updates",
-    issue: "unusual-duration",
-  },
-  {
-    id: "9",
-    date: "2024-11-02",
-    timekeeper: "Jennifer Martinez",
-    duration: 0.5,
-    task: "Database optimization",
-    issue: "unusual-duration",
-  },
-  {
-    id: "10",
-    date: "2024-10-31",
-    timekeeper: "Christopher Brown",
-    duration: 8,
-    task: "API integration testing",
-    issue: "unusual-duration",
-  },
-  {
-    id: "28",
-    date: "2024-10-30",
-    timekeeper: "Jordan Black",
-    duration: 0.1,
-    task: "Quick sync",
-    issue: "unusual-duration",
-  },
-  {
-    id: "29",
-    date: "2024-10-29",
-    timekeeper: "Sam Garcia",
-    duration: 6.5,
-    task: "Full day sprint work",
-    issue: "unusual-duration",
-  },
-  {
-    id: "30",
-    date: "2024-10-28",
-    timekeeper: "Alex Martinez",
-    duration: 0.75,
-    task: "Standup and planning",
-    issue: "unusual-duration",
-  },
-  {
-    id: "31",
-    date: "2024-10-27",
-    timekeeper: "Casey Lee",
-    duration: 7.25,
-    task: "Extended debugging session",
-    issue: "unusual-duration",
-  },
-  {
-    id: "32",
-    date: "2024-10-26",
-    timekeeper: "Morgan White",
-    duration: 0.33,
-    task: "Email sync",
-    issue: "unusual-duration",
-  },
-  {
-    id: "33",
-    date: "2024-10-25",
-    timekeeper: "Riley Chen",
-    duration: 5.75,
-    task: "Feature implementation",
-    issue: "unusual-duration",
-  },
-
-  // Missing Information
-  {
-    id: "11",
-    date: "2024-11-04",
-    timekeeper: "Amanda White",
-    duration: 2,
-    task: "Client project work",
-    issue: "missing-info",
-  },
-  {
-    id: "12",
-    date: "2024-11-02",
-    timekeeper: "Kevin Davis",
-    duration: 3.5,
-    task: "Strategic planning",
-    issue: "missing-info",
-  },
-  {
-    id: "13",
-    date: "2024-10-29",
-    timekeeper: "Nicole Thompson",
-    duration: 1.5,
-    task: "Team collaboration",
-    issue: "missing-info",
-  },
-  {
-    id: "34",
-    date: "2024-10-28",
-    timekeeper: "Jordan Wilson",
-    duration: 2.25,
-    task: "Project coordination",
-    issue: "missing-info",
-  },
-  {
-    id: "35",
-    date: "2024-10-27",
-    timekeeper: "Sam Anderson",
-    duration: 1.75,
-    task: "Stakeholder meeting",
-    issue: "missing-info",
-  },
-  {
-    id: "36",
-    date: "2024-10-26",
-    timekeeper: "Alex Johnson",
-    duration: 3,
-    task: "Workshop attendance",
-    issue: "missing-info",
-  },
-  {
-    id: "37",
-    date: "2024-10-25",
-    timekeeper: "Casey Robinson",
-    duration: 2.5,
-    task: "Process review",
-    issue: "missing-info",
-  },
-  {
-    id: "38",
-    date: "2024-10-24",
-    timekeeper: "Morgan Green",
-    duration: 1.5,
-    task: "Team sync session",
-    issue: "missing-info",
-  },
-  {
-    id: "39",
-    date: "2024-10-23",
-    timekeeper: "Riley Martinez",
-    duration: 2.75,
-    task: "Budget planning",
-    issue: "missing-info",
-  },
-  {
-    id: "40",
-    date: "2024-10-22",
-    timekeeper: "Harper Thompson",
-    duration: 1.25,
-    task: "Resource allocation",
-    issue: "missing-info",
-  },
-]
-
-export interface Bill {
-  id: string
-  matter: string
-  period: string
-  status: "Draft" | "Past"
-  amount: number
-  entries: number
-  issues: number
 }
 
 export interface BillDocument {
@@ -465,87 +30,22 @@ export interface BillDocument {
   downloadUrl: string
 }
 
-export interface BillDetail extends Bill {
-  documents: BillDocument[]
-  entries: TimesheetEntry[]
+export interface BillSummary {
+  id: string
+  matterId: string
+  matter: string
+  period: string
+  status: "Draft" | "Past"
+  amount: number
+  entries: number
+  issues: number
 }
 
-export const mockBillDocuments: BillDocument[] = [
-  {
-    id: "doc-1",
-    title: "Cover Letter",
-    type: "PDF",
-    reviewStatus: "approved",
-    reviewers: ["John Smith"],
-    downloadUrl: "#",
-  },
-  {
-    id: "doc-2",
-    title: "Billing Summary",
-    type: "Spreadsheet",
-    reviewStatus: "pending",
-    reviewers: ["Linda Garcia", "David Chen"],
-    downloadUrl: "#",
-  },
-  {
-    id: "doc-3",
-    title: "Detailed Time Report",
-    type: "PDF",
-    reviewStatus: "changes-required",
-    reviewers: ["John Smith"],
-    feedback: "Please clarify the hours logged for administrative work. Some entries appear to lack detail.",
-    downloadUrl: "#",
-  },
-  {
-    id: "doc-4",
-    title: "Expense Report",
-    type: "Spreadsheet",
-    reviewStatus: "no-review",
-    downloadUrl: "#",
-  },
-]
-
-// Extended mockBills with document data
-export const mockBillDetail: BillDetail = {
-  id: "bill-001",
-  matter: "Project Blackstone",
-  period: "October 2025",
-  status: "Draft",
-  amount: 12450,
-  entries: 40,
-  issues: 15,
-  documents: mockBillDocuments,
+export interface Bill extends BillSummary {
+  documents?: BillDocument[]
+  participantIds?: string[]
+  timesheetEntryIds?: string[]
 }
-
-export const mockBills: Bill[] = [
-  {
-    id: "bill-001",
-    matter: "Project Blackstone",
-    period: "October 2025",
-    status: "Draft",
-    amount: 12450,
-    entries: 40,
-    issues: 15,
-  },
-  {
-    id: "bill-002",
-    matter: "Project Blackstone",
-    period: "September 2025",
-    status: "Past",
-    amount: 10200,
-    entries: 35,
-    issues: 0,
-  },
-  {
-    id: "bill-003",
-    matter: "Project Blackstone",
-    period: "August 2025",
-    status: "Past",
-    amount: 9800,
-    entries: 32,
-    issues: 0,
-  },
-]
 
 export interface Timekeeper {
   id: string
@@ -566,38 +66,22 @@ export interface ContextDocument {
   url: string
 }
 
-export const mockTimekeepers: Timekeeper[] = [
-  { id: "tk-1", name: "Sarah Chen", role: "Senior Associate", billingRate: 350 },
-  { id: "tk-2", name: "Marcus Johnson", role: "Associate", billingRate: 250 },
-  { id: "tk-3", name: "Emma Rodriguez", role: "Partner", billingRate: 450 },
-  { id: "tk-4", name: "Alex Thompson", role: "Associate", billingRate: 250 },
-  { id: "tk-5", name: "Jordan Lee", role: "Junior Associate", billingRate: 175 },
-  { id: "tk-6", name: "Casey Wong", role: "Senior Associate", billingRate: 350 },
-]
+export interface MatterContext {
+  id: string
+  name: string
+  description: string
+  billingArrangements: string[]
+}
 
-export const mockOtherParticipants: OtherParticipant[] = [
-  { id: "op-1", name: "John Smith", role: "Client Contact" },
-  { id: "op-2", name: "Linda Garcia", role: "Project Manager" },
-  { id: "op-3", name: "David Chen", role: "Technical Lead" },
-]
+export interface MatterOption {
+  id: string
+  name: string
+}
 
-export const mockContextDocuments: ContextDocument[] = [
-  { id: "cd-1", title: "Client Billing Guidelines", url: "#" },
-  { id: "cd-2", title: "Project Scope Document", url: "#" },
-  { id: "cd-3", title: "Rate Card 2025", url: "#" },
-]
-
-export const mockMatterContext = {
-  id: "matter-001",
-  name: "Project Blackstone",
-  description:
-    "Development and implementation of next-generation analytics platform for enterprise clients. Focus on scalability, security, and user experience optimization.",
-  billingArrangements: [
-    "Invoices payable within 14 days",
-    "25% discount on administrative work",
-    "Hourly billing with 0.25 hour minimum increments",
-    "All expenses billed at cost plus 10%",
-  ],
+export interface AutomationStep {
+  number: string
+  description: string
+  code: string
 }
 
 export interface AutomationRule {
@@ -608,131 +92,36 @@ export interface AutomationRule {
   steps: AutomationStep[]
 }
 
-export interface AutomationStep {
-  number: string
-  description: string
-  code: string
+interface ProjectBlackstoneData {
+  matter: MatterContext
+  matterOptions: MatterOption[]
+  timekeepers: Timekeeper[]
+  otherParticipants: OtherParticipant[]
+  contextDocuments: ContextDocument[]
+  bills: Bill[]
+  timesheetEntries: TimesheetEntry[]
+  automationRules: AutomationRule[]
 }
 
-export const mockAutomationRules: AutomationRule[] = [
-  {
-    id: "rule-1",
-    title: "Insufficient Detail",
-    description: "Automatically detect and request clarification for entries lacking sufficient detail",
-    references: ["Client Billing Guidelines", "Matter Context"],
-    steps: [
-      {
-        number: "1",
-        description: "Request Clarification from Time Keeper",
-        code: `// Request clarification for insufficient detail
-const entry = getTimeEntry(entryId);
-if (entry.task.length < 20) {
-  sendEmail(entry.timekeeper, {
-    subject: 'Clarification Needed',
-    body: 'Please provide more detail for your time entry.'
-  });
-  markForReview(entry, 'insufficient-detail');
-}`,
-      },
-      {
-        number: "1b",
-        description: "Resend clarification request if unaddressed every 3 days",
-        code: `// Scheduled job to resend requests
-const unresolvedEntries = getUnresolvedEntries('insufficient-detail');
-unresolvedEntries.forEach(entry => {
-  if (daysSinceCreated(entry) % 3 === 0) {
-    resendClarificationEmail(entry);
-  }
-});`,
-      },
-      {
-        number: "2",
-        description: "Rewrite Narrative to include clarification",
-        code: `// Auto-rewrite with AI assistance
-const clarification = await getTimekeeperResponse(entryId);
-const improvedTask = await improveTaskDescription(
-  entry.task,
-  clarification
-);
-entry.suggestedTask = improvedTask;`,
-      },
-      {
-        number: "3",
-        description: "Raise for Approval",
-        code: `// Submit for review
-updateReviewStatus(entry, {
-  status: 'pending-approval',
-  suggestedText: entry.suggestedTask,
-  originalText: entry.task
-});`,
-      },
-    ],
-  },
-  {
-    id: "rule-2",
-    title: "Poor Writing Style",
-    description: "Identify and improve poorly formatted or unclear time entry descriptions",
-    references: ["Client Billing Guidelines", "Style Guide"],
-    steps: [
-      {
-        number: "1",
-        description: "Detect Poor Writing Quality",
-        code: `// Analyze writing quality
-const quality = analyzeWritingQuality(entry.task);
-if (quality.score < 0.6) {
-  flagEntry(entry, 'poor-writing');
-}`,
-      },
-      {
-        number: "2",
-        description: "Generate Improved Version",
-        code: `// Generate improved description
-const improved = await generateImprovement(entry.task, {
-  tone: 'professional',
-  style: 'concise',
-  maxLength: 100
-});
-entry.suggestedTask = improved;`,
-      },
-      {
-        number: "3",
-        description: "Notify Timekeeper and Request Approval",
-        code: `// Send improvement suggestion
-sendNotification(entry.timekeeper, {
-  type: 'writing-improvement',
-  original: entry.task,
-  suggested: entry.suggestedTask,
-  action: 'approve-or-edit'
-});`,
-      },
-    ],
-  },
-  {
-    id: "rule-3",
-    title: "Unusual Duration",
-    description: "Flag entries with atypical time durations for review",
-    references: ["Matter Context", "Billing Guidelines"],
-    steps: [
-      {
-        number: "1",
-        description: "Analyze Duration Against Historical Data",
-        code: `// Check if duration is unusual
-const avgDuration = getAverageTaskDuration(entry.task);
-const threshold = avgDuration * 1.5;
-if (entry.duration > threshold) {
-  flagEntry(entry, 'unusual-duration');
-}`,
-      },
-      {
-        number: "2",
-        description: "Request Clarification or Adjustment",
-        code: `// Send review request
-sendReviewRequest(entry, {
-  reason: 'Duration significantly higher than average',
-  suggestedAction: 'Verify or split into multiple entries',
-  averageDuration: avgDuration
-});`,
-      },
-    ],
-  },
-]
+const data = projectBlackstoneData as ProjectBlackstoneData
+
+const bills = data.bills
+
+export const mockMatterContext = data.matter
+export const mockMatterOptions = data.matterOptions
+export const mockTimekeepers = data.timekeepers
+export const mockOtherParticipants = data.otherParticipants
+export const mockContextDocuments = data.contextDocuments
+export const mockAutomationRules = data.automationRules
+export const mockTimesheetData = data.timesheetEntries
+
+export const mockBills: BillSummary[] = bills.map(({ documents, participantIds, timesheetEntryIds, ...summary }) => summary)
+
+const billDetailMap = new Map<string, Bill>(bills.map((bill) => [bill.id, bill]))
+
+export const mockBillDetail = billDetailMap.get("bill-001")
+export const mockBillDocuments = mockBillDetail?.documents ?? []
+
+export function getBillDetail(billId: string): Bill | undefined {
+  return billDetailMap.get(billId)
+}

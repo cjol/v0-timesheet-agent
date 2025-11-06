@@ -3,6 +3,7 @@ import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import Link from "next/link"
 import type { TimesheetEntry } from "@/lib/mock-data"
+import { getBillDetail } from "@/lib/mock-data"
 
 interface TimeEntriesTableProps {
   data: TimesheetEntry[]
@@ -15,6 +16,7 @@ export default function TimeEntriesTable({ data }: TimeEntriesTableProps) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   const columns = ["date", "timekeeper", "duration", "task", "bill", "reviewStatus", "actions"] as const
+  const defaultBill = getBillDetail("bill-001")
 
   const handleSort = (column: keyof TimesheetEntry) => {
     if (sortColumn === column) {
@@ -158,16 +160,19 @@ export default function TimeEntriesTable({ data }: TimeEntriesTableProps) {
             const isExpanded = expandedRows.has(entry.id)
 
             return (
-              <tr key={entry.id} className="border-b border-border hover:bg-muted/30">
-                <td className="px-4 py-3">{entry.date}</td>
-                <td className="px-4 py-3">{entry.timekeeper}</td>
-                <td className="px-4 py-3">{entry.duration.toFixed(2)} hrs</td>
-                <td className="px-4 py-3 max-w-sm truncate">{entry.task}</td>
-                <td className="px-4 py-3">
-                  <Link href="/bills/bill-001" className="text-primary hover:underline text-xs">
-                    Oct 2025
-                  </Link>
-                </td>
+                <tr key={entry.id} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3">{entry.date}</td>
+                  <td className="px-4 py-3">{entry.timekeeper}</td>
+                  <td className="px-4 py-3">{entry.duration.toFixed(2)} hrs</td>
+                  <td className="px-4 py-3 max-w-sm truncate">{entry.task}</td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={defaultBill ? `/bills/${defaultBill.id}` : "/bills"}
+                      className="text-primary hover:underline text-xs"
+                    >
+                      {defaultBill?.period ?? "View Bill"}
+                    </Link>
+                  </td>
                 <td className="px-4 py-3">
                   {entry.issue ? (
                     <Link
