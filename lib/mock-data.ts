@@ -1,4 +1,22 @@
-export const mockTimesheetData = [
+export interface ActionLogEntry {
+  message: string;
+  timestamp: string;
+  actor: string;
+  undoable?: boolean;
+}
+
+export interface TimesheetEntry {
+  id: string;
+  date: string;
+  timekeeper: string;
+  duration: number;
+  task: string;
+  issue: string;
+  suggestedTask?: string;
+  actionLog?: ActionLogEntry[];
+}
+
+export const mockTimesheetData: TimesheetEntry[] = [
   // Insufficient Detail
   {
     id: "1",
@@ -7,6 +25,13 @@ export const mockTimesheetData = [
     duration: 2.5,
     task: "Work on project",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Sarah Chen",
+        timestamp: "2024-11-04",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "2",
@@ -14,7 +39,21 @@ export const mockTimesheetData = [
     timekeeper: "Marcus Johnson",
     duration: 1.5,
     task: "Meetings",
+    suggestedTask: "Meeting with design team to discuss UI/UX improvements",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Marcus Johnson.",
+        timestamp: "2024-11-03",
+        actor: "FixMyTimeAgent",
+      },
+      {
+        message: "Details received from Marcus Johnson, narrative re-drafted.",
+        timestamp: "2024-11-03",
+        actor: "FixMyTimeAgent",
+        undoable: true,
+      },
+    ],
   },
   {
     id: "3",
@@ -23,6 +62,18 @@ export const mockTimesheetData = [
     duration: 3,
     task: "Development",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Emma Rodriguez",
+        timestamp: "2024-11-02",
+        actor: "FixMyTimeAgent",
+      },
+      {
+        message: "Follow-up reminder sent",
+        timestamp: "2024-11-03",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "14",
@@ -31,6 +82,20 @@ export const mockTimesheetData = [
     duration: 2.25,
     task: "Code review",
     issue: "insufficient-detail",
+    suggestedTask: "Code review of authentication module pull request",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Alex Thompson",
+        timestamp: "2024-11-01",
+        actor: "FixMyTimeAgent",
+      },
+      {
+        message: "AI-generated task description applied",
+        timestamp: "2024-11-01",
+        actor: "FixMyTimeAgent",
+        undoable: true,
+      },
+    ],
   },
   {
     id: "15",
@@ -39,6 +104,13 @@ export const mockTimesheetData = [
     duration: 1.75,
     task: "Testing phase",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Jordan Lee",
+        timestamp: "2024-10-31",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "16",
@@ -47,6 +119,13 @@ export const mockTimesheetData = [
     duration: 3.5,
     task: "API work",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Casey Wong",
+        timestamp: "2024-10-30",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "17",
@@ -55,6 +134,13 @@ export const mockTimesheetData = [
     duration: 2,
     task: "Design collaboration",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Morgan Smith",
+        timestamp: "2024-10-29",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "18",
@@ -63,6 +149,13 @@ export const mockTimesheetData = [
     duration: 1.5,
     task: "Documentation update",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Riley Davis",
+        timestamp: "2024-10-28",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "19",
@@ -71,6 +164,13 @@ export const mockTimesheetData = [
     duration: 2.75,
     task: "Client meeting prep",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Taylor Brown",
+        timestamp: "2024-10-27",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
   {
     id: "20",
@@ -79,6 +179,13 @@ export const mockTimesheetData = [
     duration: 1.25,
     task: "Infrastructure work",
     issue: "insufficient-detail",
+    actionLog: [
+      {
+        message: "Email requesting clarification sent to Harper Martin",
+        timestamp: "2024-10-26",
+        actor: "FixMyTimeAgent",
+      },
+    ],
   },
 
   // Poor Writing Style
@@ -87,16 +194,18 @@ export const mockTimesheetData = [
     date: "2024-11-04",
     timekeeper: "James Liu",
     duration: 2,
-    task: "fixing bugs n stuff lol",
+    task: "Fixed authentification bug",
     issue: "poor-writing",
+    suggestedTask: "Fixed authentication bug",
   },
   {
     id: "5",
     date: "2024-11-01",
     timekeeper: "Priya Patel",
     duration: 1.75,
-    task: "did the thing for the client dashboard thingy",
+    task: "updated the client dashboard with new metrics",
     issue: "poor-writing",
+    suggestedTask: "Updated client dashboard with analytics metrics and charts",
   },
   {
     id: "6",
@@ -105,6 +214,7 @@ export const mockTimesheetData = [
     duration: 2.25,
     task: "URGENT FIX NEEDED ASAP!!!",
     issue: "poor-writing",
+    suggestedTask: "Resolved critical payment processing error",
   },
   {
     id: "21",
@@ -113,6 +223,7 @@ export const mockTimesheetData = [
     duration: 1.5,
     task: "working on stuff",
     issue: "poor-writing",
+    suggestedTask: "Implemented user profile settings page",
   },
   {
     id: "22",
@@ -121,6 +232,7 @@ export const mockTimesheetData = [
     duration: 2.5,
     task: "fixed some things idk",
     issue: "poor-writing",
+    suggestedTask: "Corrected responsive layout issues on mobile",
   },
   {
     id: "23",
@@ -129,6 +241,7 @@ export const mockTimesheetData = [
     duration: 1.25,
     task: "doing the update thing",
     issue: "poor-writing",
+    suggestedTask: "Updated dependencies and security patches",
   },
   {
     id: "24",
@@ -137,6 +250,7 @@ export const mockTimesheetData = [
     duration: 2,
     task: "SUPER IMPORTANT WORK!!!!!!",
     issue: "poor-writing",
+    suggestedTask: "Implemented data export functionality",
   },
   {
     id: "25",
@@ -145,6 +259,7 @@ export const mockTimesheetData = [
     duration: 1.75,
     task: "stuff and things",
     issue: "poor-writing",
+    suggestedTask: "Refined search algorithm and filters",
   },
   {
     id: "26",
@@ -153,6 +268,7 @@ export const mockTimesheetData = [
     duration: 2.25,
     task: "whatever needs doin",
     issue: "poor-writing",
+    suggestedTask: "Completed API integration for third-party service",
   },
   {
     id: "27",
@@ -161,6 +277,7 @@ export const mockTimesheetData = [
     duration: 1.5,
     task: "thing thing thing",
     issue: "poor-writing",
+    suggestedTask: "Built notification system components",
   },
 
   // Unusual Duration
@@ -326,4 +443,4 @@ export const mockTimesheetData = [
     task: "Resource allocation",
     issue: "missing-info",
   },
-]
+];

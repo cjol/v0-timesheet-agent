@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
-import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles, Undo2 } from "lucide-react"
+import { diff_match_patch, DIFF_DELETE, DIFF_INSERT, DIFF_EQUAL } from "diff-match-patch"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -34,6 +35,13 @@ import {
   type SortingState,
 } from "@tanstack/react-table"
 
+interface ActionLogEntry {
+  message: string
+  timestamp: string
+  actor: string
+  undoable?: boolean
+}
+
 interface Entry {
   id: string
   date: string
@@ -41,6 +49,8 @@ interface Entry {
   duration: number
   task: string
   issue: string
+  suggestedTask?: string
+  actionLog?: ActionLogEntry[]
 }
 
 interface EntriesTableProps {
@@ -51,6 +61,42 @@ interface EntriesTableProps {
 }
 
 const columnHelper = createColumnHelper<Entry>()
+
+const renderTaskDiff = (oldText: string, newText: string) => {
+  const dmp = new diff_match_patch()
+  
+  // First, compute character-level diffs
+  const diffs = dmp.diff_main(oldText, newText)
+  
+  // Clean up the diffs for better semantic quality
+  dmp.diff_cleanupSemantic(diffs)
+  
+  return (
+    <div className="font-mono text-sm">
+      {diffs.map((diff, index) => {
+        const [operation, text] = diff
+        
+        if (operation === DIFF_DELETE) {
+          return (
+            <span key={index} className="text-red-600/60 line-through">
+              {text}
+            </span>
+          )
+        }
+        
+        if (operation === DIFF_INSERT) {
+          return (
+            <span key={index} className="text-green-600 font-medium">
+              {text}
+            </span>
+          )
+        }
+        
+        return <span key={index}>{text}</span>
+      })}
+    </div>
+  )
+}
 
 export default function EntriesTable({ data, issueType, isFullscreen, onEditingChange }: EntriesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -206,6 +252,7 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
     () => [
       columnHelper.accessor("date", {
         header: "Date",
+        size: 120,
         cell: (info) => (
           <EditableCell
             rowId={info.row.original.id}
@@ -222,6 +269,7 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
       }),
       columnHelper.accessor("timekeeper", {
         header: "Time Keeper",
+        size: 180,
         cell: (info) => (
           <SearchableDropdownCell
             rowId={info.row.original.id}
@@ -231,6 +279,7 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
       }),
       columnHelper.accessor("duration", {
         header: "Duration",
+        size: 100,
         cell: (info) => (
           <EditableCell
             rowId={info.row.original.id}
@@ -242,30 +291,39 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
       }),
       columnHelper.accessor("task", {
         header: "Task",
-        cell: (info) => (
-          <EditableCell
-            rowId={info.row.original.id}
-            columnId="task"
-            value={info.getValue()}
-          />
-        ),
+        size: undefined,
+        cell: (info) => {
+          const row = info.row.original
+
+          if (row.suggestedTask) {
+            return (
+              <div className="py-1">
+                {renderTaskDiff(info.getValue(), row.suggestedTask)}
+              </div>
+            )
+          }
+
+          return (
+            <div className="font-mono">
+              <EditableCell
+                rowId={info.row.original.id}
+                columnId="task"
+                value={info.getValue()}
+              />
+            </div>
+          )
+        },
       }),
       columnHelper.display({
         id: "actions",
         header: "",
+        size: 150,
         cell: (info) => {
           const isInsufficientDetail = issueType === "insufficient-detail"
-          const yesterday = new Date()
-          yesterday.setDate(yesterday.getDate() - 1)
-          const formattedDate = yesterday.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })
 
           return (
             <div className="flex items-center gap-1">
-              {isInsufficientDetail ? (
+              {isInsufficientDetail && info.row.original.actionLog ? (
                 <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -278,12 +336,34 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
                         <Sparkles className="h-4 w-4 text-pink-600" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <div className="space-y-1">
+                    <TooltipContent side="left" className="max-w-md">
+                      <div className="space-y-2">
                         <p className="font-semibold text-xs">Action Log</p>
-                        <ul className="text-xs text-muted-foreground list-disc list-outside ml-4 space-y-0.5">
-                          <li>Email requesting clarification sent to {info.row.original.timekeeper} on {formattedDate}</li>
-                        </ul>
+                        <div className="space-y-1.5">
+                          {info.row.original.actionLog.map((log, index) => {
+                            const logDate = new Date(log.timestamp).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })
+                            return (
+                              <div key={index} className="text-xs text-muted-foreground grid grid-cols-[auto_auto_1fr_auto] gap-2 items-start">
+                                <span className="font-medium">{logDate}</span>
+                                <span className="text-primary font-medium">{log.actor}</span>
+                                <span>{log.message}</span>
+                                {log.undoable && (
+                                  <button
+                                    onClick={() => console.log('Undo action:', log.message)}
+                                    className="text-muted-foreground hover:text-foreground transition-colors"
+                                    title="Undo this action"
+                                  >
+                                    <Undo2 className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
                     </TooltipContent>
                   </Tooltip>
@@ -383,7 +463,10 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
     const showFilterIcon = isHovered || hasActiveFilter || isFilterOpen
 
     return (
-      <th className="text-sm font-medium text-foreground py-3 px-4 text-left">
+      <th 
+        className="text-sm font-medium text-foreground py-3 px-4 text-left"
+        style={{ width: header?.getSize() !== 150 ? header?.getSize() : undefined }}
+      >
         <div
           className="flex items-center gap-2 relative"
           onMouseEnter={() => setIsHovered(true)}
@@ -465,23 +548,27 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
                   editingCell?.rowId === row.original.id && "bg-card/50"
                 )}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3 text-sm">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+                 {row.getVisibleCells().map((cell) => (
+                   <td 
+                     key={cell.id} 
+                     className="px-4 py-3 text-sm"
+                     style={{ width: cell.column.getSize() !== 150 ? cell.column.getSize() : undefined }}
+                   >
+                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                   </td>
+                 ))}
               </tr>
             ))}
           </tbody>
           <tfoot className="sticky bottom-0 bg-card z-20">
             <tr className="border-t-2 border-foreground">
-              <td className="px-4 py-3 text-sm font-medium">
+              <td className="px-4 py-3 text-sm font-medium" style={{ width: 120 }}>
                 {stats.count} {stats.count === 1 ? "entry" : "entries"}
               </td>
-              <td className="px-4 py-3 text-sm"></td>
-              <td className="px-4 py-3 text-sm font-medium">{stats.totalDuration}h total</td>
+              <td className="px-4 py-3 text-sm" style={{ width: 180 }}></td>
+              <td className="px-4 py-3 text-sm font-medium" style={{ width: 100 }}>{stats.totalDuration}h total</td>
               <td className="px-4 py-3 text-sm text-muted-foreground">Avg: {stats.avgDuration}h</td>
-              <td className="px-4 py-3 text-sm"></td>
+              <td className="px-4 py-3 text-sm" style={{ width: 150 }}></td>
             </tr>
           </tfoot>
         </table>
