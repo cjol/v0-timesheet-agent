@@ -36,7 +36,7 @@ Manages billing periods and their associated metadata.
 | DELETE | `/api/bills/:id` | Delete bill (if in draft status) |
 
 **Bill Object Structure:**
-```json
+\`\`\`json
 {
   "id": "bill-001",
   "matter": "Project Blackstone",
@@ -48,7 +48,7 @@ Manages billing periods and their associated metadata.
   "createdAt": "2024-11-01T00:00:00Z",
   "updatedAt": "2024-11-05T10:00:00Z"
 }
-```
+\`\`\`
 
 ### 2. Time Entries Resource
 
@@ -65,7 +65,7 @@ Manages individual time entries and their review status.
 | POST | `/api/time-entries/bulk-exclude` | Exclude multiple entries |
 
 **Time Entry Object Structure:**
-```json
+\`\`\`json
 {
   "id": "entry-123",
   "date": "2024-11-04",
@@ -85,7 +85,7 @@ Manages individual time entries and their review status.
     }
   ]
 }
-```
+\`\`\`
 
 ### 3. Bill Documents Resource
 
@@ -103,7 +103,7 @@ Manages documents associated with bills and their review workflows.
 | GET | `/api/documents/:id/review-history` | Get review history |
 
 **Document Object Structure:**
-```json
+\`\`\`json
 {
   "id": "doc-1-bill-001",
   "billId": "bill-001",
@@ -123,7 +123,7 @@ Manages documents associated with bills and their review workflows.
     }
   ]
 }
-```
+\`\`\`
 
 ### 4. Matter Settings Resource
 
@@ -165,7 +165,7 @@ Manages matter configuration, team members, and billing arrangements.
 | DELETE | `/api/matters/:matterId/billing-arrangements/:id` | Remove arrangement |
 
 **Matter Object Structure:**
-```json
+\`\`\`json
 {
   "id": "matter-001",
   "name": "Project Blackstone",
@@ -190,7 +190,7 @@ Manages matter configuration, team members, and billing arrangements.
     }
   ]
 }
-```
+\`\`\`
 
 ### 5. Automation Rules Resource
 
@@ -207,7 +207,7 @@ Manages automation rules for processing time entries.
 | GET | `/api/automation-rules/:id/logs` | Get execution logs |
 
 **Automation Rule Object Structure:**
-```json
+\`\`\`json
 {
   "id": "rule-1",
   "title": "Insufficient Detail",
@@ -223,7 +223,7 @@ Manages automation rules for processing time entries.
   "enabled": true,
   "createdAt": "2024-01-01T00:00:00Z"
 }
-```
+\`\`\`
 
 ### 6. Action Logs Resource
 
@@ -245,20 +245,20 @@ Manages action history for time entries.
 | POST | `/api/auth/refresh-token` | Refresh JWT token |
 
 **Authentication Headers:**
-```http
+\`\`\`http
 Authorization: Bearer <jwt-token>
-```
+\`\`\`
 
 **Login Request:**
-```json
+\`\`\`json
 {
   "email": "user@example.com",
   "password": "secure-password"
 }
-```
+\`\`\`
 
 **Login Response:**
-```json
+\`\`\`json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
   "refreshToken": "refresh-token-here",
@@ -269,7 +269,7 @@ Authorization: Bearer <jwt-token>
     "role": "Senior Associate"
   }
 }
-```
+\`\`\`
 
 ## Query Parameters & Filters
 
@@ -303,16 +303,16 @@ Most list endpoints support the following query parameters:
 - `type` - Filter by document type
 
 ### Example Query
-```
+\`\`\`
 GET /api/time-entries?billId=bill-001&issue=insufficient-detail&page=2&limit=50&sort=date&order=desc
-```
+\`\`\`
 
 ## Request/Response Examples
 
 ### Create Time Entry
 
 **Request:**
-```http
+\`\`\`http
 POST /api/time-entries
 Content-Type: application/json
 Authorization: Bearer <token>
@@ -324,10 +324,10 @@ Authorization: Bearer <token>
   "task": "Reviewed contract amendments for section 3.2",
   "billId": "bill-001"
 }
-```
+\`\`\`
 
 **Response:**
-```http
+\`\`\`http
 HTTP/1.1 201 Created
 Content-Type: application/json
 
@@ -344,12 +344,12 @@ Content-Type: application/json
   "createdAt": "2024-11-05T10:00:00Z",
   "updatedAt": "2024-11-05T10:00:00Z"
 }
-```
+\`\`\`
 
 ### Request Document Review
 
 **Request:**
-```http
+\`\`\`http
 POST /api/documents/doc-1-bill-001/request-review
 Content-Type: application/json
 Authorization: Bearer <token>
@@ -369,10 +369,10 @@ Authorization: Bearer <token>
   ],
   "message": "Please review the attached billing summary for October 2025."
 }
-```
+\`\`\`
 
 **Response:**
-```http
+\`\`\`http
 HTTP/1.1 200 OK
 Content-Type: application/json
 
@@ -392,12 +392,12 @@ Content-Type: application/json
     }
   ]
 }
-```
+\`\`\`
 
 ### Bulk Approve Time Entries
 
 **Request:**
-```http
+\`\`\`http
 POST /api/time-entries/bulk-approve
 Content-Type: application/json
 Authorization: Bearer <token>
@@ -407,10 +407,10 @@ Authorization: Bearer <token>
   "applySuggestions": true,
   "comment": "Approved after review"
 }
-```
+\`\`\`
 
 **Response:**
-```http
+\`\`\`http
 HTTP/1.1 200 OK
 Content-Type: application/json
 
@@ -437,14 +437,14 @@ Content-Type: application/json
     }
   ]
 }
-```
+\`\`\`
 
 ## Real-time Updates
 
 For real-time features, implement WebSocket or Server-Sent Events:
 
 ### WebSocket Connection
-```javascript
+\`\`\`javascript
 // Client-side connection example
 const ws = new WebSocket('wss://api.example.com/ws/bills/bill-001');
 
@@ -452,10 +452,10 @@ ws.onmessage = (event) => {
   const update = JSON.parse(event.data);
   // Handle real-time updates
 };
-```
+\`\`\`
 
 ### Server-Sent Events
-```http
+\`\`\`http
 GET /api/sse/time-entries
 Accept: text/event-stream
 
@@ -463,13 +463,13 @@ Accept: text/event-stream
 data: {"type":"entry-updated","id":"entry-123","changes":{"issue":"resolved"}}
 
 data: {"type":"entry-created","id":"entry-124","entry":{...}}
-```
+\`\`\`
 
 ## Error Handling
 
 All errors follow a consistent format:
 
-```json
+\`\`\`json
 {
   "error": {
     "code": "VALIDATION_ERROR",
@@ -488,7 +488,7 @@ All errors follow a consistent format:
   "timestamp": "2024-11-05T10:00:00Z",
   "requestId": "req-abc123"
 }
-```
+\`\`\`
 
 ### Common Error Codes
 - `VALIDATION_ERROR` - Invalid request data
@@ -573,10 +573,10 @@ All errors follow a consistent format:
 
 ### 4. API Versioning
 Consider implementing API versioning from the start:
-```
+\`\`\`
 /api/v1/bills
 /api/v2/bills  # Future version
-```
+\`\`\`
 
 ### 5. Testing Recommendations
 - Unit tests for all business logic
