@@ -1,7 +1,9 @@
+"use client"
 import Link from "next/link"
-import { mockBills } from "@/lib/mock-data"
+import { useBills } from "@/lib/hooks"
 
 export default function BillsPage() {
+  const { data: mockBills = [] } = useBills()
   const draftBills = mockBills.filter((b) => b.status === "Draft")
   const pastBills = mockBills.filter((b) => b.status === "Past")
 

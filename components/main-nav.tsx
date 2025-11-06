@@ -3,10 +3,11 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { mockMatters } from "@/lib/mock-data"
+import { useMatters } from "@/lib/hooks"
 import { useMatter } from "@/contexts/matter-context"
 
 export default function MainNav() {
+  const { data: mockMatters = [] } = useMatters()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { currentMatterName, setCurrentMatter } = useMatter()
   const dropdownRef = useRef<HTMLDivElement>(null)

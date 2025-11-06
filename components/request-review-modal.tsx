@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { MultiSelect, type Option } from "@/components/ui/multi-select"
 import { RichTextEditor } from "@/components/rich-text-editor"
-import { defaultReviewEmailTemplate } from "@/lib/mock-data"
+import { useDefaultReviewEmailTemplate } from "@/lib/hooks"
 
 interface Document {
   id: string
@@ -36,6 +36,7 @@ export default function RequestReviewModal({
   documents,
   participants,
 }: RequestReviewModalProps) {
+  const { data: defaultReviewEmailTemplate = "" } = useDefaultReviewEmailTemplate()
   const [selectedDocs, setSelectedDocs] = useState<Map<string, DocumentSelection>>(new Map())
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([])
   const [emailBody, setEmailBody] = useState<string>("")
@@ -45,7 +46,7 @@ export default function RequestReviewModal({
     if (isOpen) {
       setEmailBody(defaultReviewEmailTemplate)
     }
-  }, [isOpen])
+  }, [isOpen, defaultReviewEmailTemplate])
 
   // Update email body when a document is selected as email body
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function RequestReviewModal({
     } else {
       setEmailBody(defaultReviewEmailTemplate)
     }
-  }, [selectedDocs])
+  }, [selectedDocs, defaultReviewEmailTemplate])
 
   if (!isOpen) return null
 

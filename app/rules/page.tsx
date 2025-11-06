@@ -1,10 +1,11 @@
 "use client"
 import { useState } from "react"
 import CodePopover from "@/components/code-popover"
-import { mockAutomationRules } from "@/lib/mock-data"
+import { useAutomationRules } from "@/lib/hooks"
 import { ChevronDown, ChevronRight } from "lucide-react"
 
 export default function RulesPage() {
+  const { data: mockAutomationRules = [] } = useAutomationRules()
   const [openReferences, setOpenReferences] = useState<Record<string, boolean>>({})
 
   const toggleReferences = (ruleId: string) => {

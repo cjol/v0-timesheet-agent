@@ -1,19 +1,28 @@
 "use client"
-import { createContext, useContext, useState, type ReactNode } from "react"
-import { mockMatterContext, mockMatters } from "@/lib/mock-data"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { useMatters, useMatterContext as useMatterContextData } from "@/lib/hooks"
 
 interface MatterContextType {
   currentMatterId: string
   currentMatterName: string
-  currentMatterData: typeof mockMatterContext
+  currentMatterData: ReturnType<typeof useMatterContextData>["data"]
   setCurrentMatter: (matterId: string) => void
 }
 
 const MatterContext = createContext<MatterContextType | undefined>(undefined)
 
 export function MatterProvider({ children }: { children: ReactNode }) {
+  const { data: mockMatters = [] } = useMatters()
+  const { data: mockMatterContext } = useMatterContextData()
+  
   // Default to the first matter (Project Blackstone)
-  const [currentMatterId, setCurrentMatterId] = useState(mockMatters[0].id)
+  const [currentMatterId, setCurrentMatterId] = useState(mockMatters[0]?.id || "")
+  
+  useEffect(() => {
+    if (mockMatters.length > 0 && !currentMatterId) {
+      setCurrentMatterId(mockMatters[0].id)
+    }
+  }, [mockMatters, currentMatterId])
   
   const currentMatter = mockMatters.find((m) => m.id === currentMatterId) || mockMatters[0]
   
@@ -25,7 +34,7 @@ export function MatterProvider({ children }: { children: ReactNode }) {
     <MatterContext.Provider
       value={{
         currentMatterId,
-        currentMatterName: currentMatter.name,
+        currentMatterName: currentMatter?.name || "",
         currentMatterData: mockMatterContext, // In the future, this would be fetched based on matterId
         setCurrentMatter,
       }}

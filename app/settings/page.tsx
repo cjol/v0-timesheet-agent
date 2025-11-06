@@ -1,17 +1,41 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Edit2, Save, X, Plus } from "lucide-react"
 import SettingsSection from "@/components/settings-section"
-import { mockMatterContext, mockTimekeepers, mockOtherParticipants, mockContextDocuments } from "@/lib/mock-data"
+import { useTimekeepers, useOtherParticipants, useContextDocuments, useMatterContext } from "@/lib/hooks"
 
 export default function SettingsPage() {
+  const { data: mockMatterContext } = useMatterContext()
+  const { data: mockContextDocuments = [] } = useContextDocuments()
+  const { data: mockTimekeepers = [] } = useTimekeepers()
+  const { data: mockOtherParticipants = [] } = useOtherParticipants()
+  
   const [isEditingContext, setIsEditingContext] = useState(false)
-  const [contextDescription, setContextDescription] = useState(mockMatterContext.description)
-  const [billingArrangements, setBillingArrangements] = useState(mockMatterContext.billingArrangements)
+  const [contextDescription, setContextDescription] = useState(mockMatterContext?.description || "")
+  const [billingArrangements, setBillingArrangements] = useState(mockMatterContext?.billingArrangements || [])
   const [newArrangement, setNewArrangement] = useState("")
   const [contextDocuments, setContextDocuments] = useState(mockContextDocuments)
   const [timekeepers, setTimekeepers] = useState(mockTimekeepers)
   const [otherParticipants, setOtherParticipants] = useState(mockOtherParticipants)
+
+  useEffect(() => {
+    if (mockMatterContext) {
+      setContextDescription(mockMatterContext.description)
+      setBillingArrangements(mockMatterContext.billingArrangements)
+    }
+  }, [mockMatterContext])
+
+  useEffect(() => {
+    setContextDocuments(mockContextDocuments)
+  }, [mockContextDocuments])
+
+  useEffect(() => {
+    setTimekeepers(mockTimekeepers)
+  }, [mockTimekeepers])
+
+  useEffect(() => {
+    setOtherParticipants(mockOtherParticipants)
+  }, [mockOtherParticipants])
 
   const handleAddArrangement = () => {
     if (newArrangement.trim()) {
@@ -42,7 +66,7 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Matter Name</label>
-              <p className="text-lg font-semibold">{mockMatterContext.name}</p>
+              <p className="text-lg font-semibold">{mockMatterContext?.name}</p>
             </div>
 
             <div>
@@ -82,7 +106,7 @@ export default function SettingsPage() {
                 <button
                   onClick={() => {
                     setIsEditingContext(false)
-                    setContextDescription(mockMatterContext.description)
+                    setContextDescription(mockMatterContext?.description || "")
                   }}
                   className="flex items-center gap-1 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
                 >

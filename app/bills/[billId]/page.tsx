@@ -7,11 +7,15 @@ import RequestReviewModal from "@/components/request-review-modal"
 import ReviewHistoryDialog from "@/components/review-history-dialog"
 import HtmlPreviewModal from "@/components/html-preview-modal"
 import EntriesTable from "@/components/entries-table"
-import { mockBills, mockBillDocuments, mockTimesheetData, getDocumentReviewers, type DocumentReviewer } from "@/lib/mock-data"
+import { useTimesheetData, useBills, useBillDocuments } from "@/lib/hooks"
+import { getDocumentReviewers, type DocumentReviewer } from "@/lib/mock-data"
 
 export default function BillDetailPage() {
   const params = useParams()
   const billId = params.billId as string
+  const { data: mockTimesheetData = [] } = useTimesheetData()
+  const { data: mockBills = [] } = useBills()
+  const { data: mockBillDocuments = [] } = useBillDocuments()
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null)

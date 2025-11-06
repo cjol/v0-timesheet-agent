@@ -3,12 +3,13 @@ import { Plus } from "lucide-react"
 import Link from "next/link"
 import StatTile from "@/components/stat-tile"
 import EntriesTable from "@/components/entries-table"
-import { mockTimesheetData } from "@/lib/mock-data"
-import { mockBills } from "@/lib/mock-data"
+import { useTimesheetData, useBills } from "@/lib/hooks"
 import { useMatter } from "@/contexts/matter-context"
 
 export default function HomePage() {
   const { currentMatterName } = useMatter()
+  const { data: mockTimesheetData = [] } = useTimesheetData()
+  const { data: mockBills = [] } = useBills()
   // Calculate statistics for current matter
   const billedHours =
     mockTimesheetData.filter((e) => !["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
