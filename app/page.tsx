@@ -22,7 +22,7 @@ export default function HomePage() {
   const avgHoursPerTimekeeper = (billedHours + unbilledHours) / timekeepers.size
 
   const draftBills = mockBills.filter((b) => b.status === "Draft")
-  const pastBills = mockBills.filter((b) => b.status === "Past")
+  const pastBills = mockBills.filter((b) => b.status === "Submitted")
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -93,10 +93,10 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Past Bills */}
+          {/* Submitted Bills */}
           {pastBills.length > 0 && (
             <div>
-              <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Past Bills</h2>
+              <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Submitted Bills</h2>
               <div className="space-y-3">
                 {pastBills.map((bill) => (
                   <Link

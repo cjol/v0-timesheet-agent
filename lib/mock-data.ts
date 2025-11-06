@@ -500,7 +500,7 @@ export interface Bill {
   id: string;
   matter: string;
   period: string;
-  status: "Draft" | "Past";
+  status: "Draft" | "Submitted";
   amount: number;
   entries: number;
   issues: number;
@@ -984,7 +984,7 @@ export const BILLS_DATA: Bill[] = [
     id: "bill-002",
     matter: "Project Blackstone",
     period: "September 2025",
-    status: "Past",
+    status: "Submitted",
     amount: 10200,
     entries: 35,
     issues: 0,
@@ -993,7 +993,7 @@ export const BILLS_DATA: Bill[] = [
     id: "bill-003",
     matter: "Project Blackstone",
     period: "August 2025",
-    status: "Past",
+    status: "Submitted",
     amount: 9800,
     entries: 32,
     issues: 0,
