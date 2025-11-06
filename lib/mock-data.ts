@@ -1237,3 +1237,60 @@ sendReviewRequest(entry, {
     ],
   },
 ];
+
+// ============================================================================
+// CENTRALIZED UI TEXT AND CONFIGURATION
+// ============================================================================
+
+// Matter list for navigation dropdown
+export const mockMatters = [
+  { id: "matter-001", name: "Project Blackstone" },
+  { id: "matter-002", name: "Anderson Corp Litigation" },
+  { id: "matter-003", name: "Smith Estate Planning" },
+  { id: "matter-004", name: "TechStart Acquisition" },
+];
+
+// Default email templates for review requests
+export const defaultReviewEmailTemplate = 
+  "<p>Dear Reviewer,</p><p><br></p><p>Please review the attached documents for this billing period.</p><p><br></p><p>Kind regards</p>";
+
+// Issue section configuration - maps to automation rules
+export interface IssueSectionConfig {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export const issueSectionConfigs: IssueSectionConfig[] = [
+  {
+    id: "insufficient-detail",
+    title: "Insufficient Detail",
+    description: "Entries lacking enough information to accurately bill or understand the work performed. Add more context to these entries.",
+  },
+  {
+    id: "poor-writing",
+    title: "Poor Writing Style",
+    description: "Entries with unclear or poorly formatted descriptions that need improvement for client-facing invoices.",
+  },
+  {
+    id: "unusual-duration",
+    title: "Unusual Duration",
+    description: "Entries with time durations that are unusually short or long compared to similar tasks.",
+  },
+  {
+    id: "missing-info",
+    title: "Missing Information",
+    description: "Entries missing critical fields such as project code, client reference, or task category.",
+  },
+];
+
+// Helper function to get issue section config by ID
+export function getIssueSectionConfig(issueId: string): IssueSectionConfig | undefined {
+  return issueSectionConfigs.find(config => config.id === issueId);
+}
+
+// Helper function to get all issue sections for a matter (could be matter-specific in future)
+export function getIssueSectionsForMatter(matterId: string): IssueSectionConfig[] {
+  // For now, return all sections. In the future, this could filter based on matter configuration
+  return issueSectionConfigs;
+}

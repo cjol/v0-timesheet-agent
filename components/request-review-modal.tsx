@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { MultiSelect, type Option } from "@/components/ui/multi-select"
 import { RichTextEditor } from "@/components/rich-text-editor"
+import { defaultReviewEmailTemplate } from "@/lib/mock-data"
 
 interface Document {
   id: string
@@ -38,17 +39,13 @@ export default function RequestReviewModal({
   const [selectedDocs, setSelectedDocs] = useState<Map<string, DocumentSelection>>(new Map())
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([])
   const [emailBody, setEmailBody] = useState<string>("")
-  // TODO: load default email body from central data source
-  const [defaultEmailBody] = useState<string>(
-    "<p>Dear Reviewer,</p><p><br></p><p>Please review the attached documents for this billing period.</p><p><br></p><p>Kind regards</p>"
-  )
 
   // Reset email body when modal opens
   useEffect(() => {
     if (isOpen) {
-      setEmailBody(defaultEmailBody)
+      setEmailBody(defaultReviewEmailTemplate)
     }
-  }, [isOpen, defaultEmailBody])
+  }, [isOpen])
 
   // Update email body when a document is selected as email body
   useEffect(() => {
@@ -59,9 +56,9 @@ export default function RequestReviewModal({
         `<p>Content from document would be loaded here...</p><p><br></p><p>This is a placeholder for the HTML document content.</p>`
       )
     } else {
-      setEmailBody(defaultEmailBody)
+      setEmailBody(defaultReviewEmailTemplate)
     }
-  }, [selectedDocs, defaultEmailBody])
+  }, [selectedDocs])
 
   if (!isOpen) return null
 

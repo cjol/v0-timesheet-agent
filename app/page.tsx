@@ -5,8 +5,10 @@ import StatTile from "@/components/stat-tile"
 import EntriesTable from "@/components/entries-table"
 import { mockTimesheetData } from "@/lib/mock-data"
 import { mockBills } from "@/lib/mock-data"
+import { useMatter } from "@/contexts/matter-context"
 
 export default function HomePage() {
+  const { currentMatterName } = useMatter()
   // Calculate statistics for current matter
   const billedHours =
     mockTimesheetData.filter((e) => !["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
@@ -27,7 +29,7 @@ export default function HomePage() {
         {/* Page Header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Project Blackstone</h1>
+            <h1 className="text-4xl font-bold mb-2">{currentMatterName}</h1>
             <p className="text-muted-foreground">Matter overview and billing management</p>
           </div>
           <button className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">

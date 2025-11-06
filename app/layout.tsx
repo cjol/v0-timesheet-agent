@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import MainNav from "@/components/main-nav"
+import { MatterProvider } from "@/contexts/matter-context"
 import "./globals.css"
 
 // Seem unused, but Next reads these vars from the module scope magically
@@ -25,9 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <MainNav />
-        {children}
-        <Analytics />
+        <MatterProvider>
+          <MainNav />
+          {children}
+          <Analytics />
+        </MatterProvider>
       </body>
     </html>
   )

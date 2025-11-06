@@ -3,10 +3,12 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { mockMatters } from "@/lib/mock-data"
+import { useMatter } from "@/contexts/matter-context"
 
 export default function MainNav() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [selectedMatter, setSelectedMatter] = useState("Project Blackstone")
+  const { currentMatterName, setCurrentMatter } = useMatter()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
@@ -82,7 +84,7 @@ export default function MainNav() {
                 className="flex items-center gap-2 px-3 py-1.5 border border-border rounded-md hover:bg-muted/50 cursor-pointer"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <span className="text-sm font-medium">{selectedMatter}</span>
+                <span className="text-sm font-medium">{currentMatterName}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -92,22 +94,16 @@ export default function MainNav() {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-md shadow-lg z-50">
                   <div className="py-1">
-                    {/* // TODO: replace these from centralised matter list, and allow setting the current matter in global context */}
-                    {[
-                      "Project Blackstone",
-                      "Anderson Corp Litigation",
-                      "Smith Estate Planning",
-                      "TechStart Acquisition",
-                    ].map((matter) => (
+                    {mockMatters.map((matter) => (
                       <button
-                        key={matter}
+                        key={matter.id}
                         className="w-full text-left px-4 py-2 text-sm hover:bg-muted/50 transition-colors"
                         onClick={() => {
-                          setSelectedMatter(matter)
+                          setCurrentMatter(matter.id)
                           setIsDropdownOpen(false)
                         }}
                       >
-                        {matter}
+                        {matter.name}
                       </button>
                     ))}
 

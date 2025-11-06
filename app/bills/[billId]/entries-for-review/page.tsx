@@ -3,7 +3,7 @@ import { useParams } from "next/navigation"
 import { CheckCircle, XCircle } from "lucide-react"
 import IssueSection from "@/components/issue-section"
 import TableOfContents from "@/components/table-of-contents"
-import { mockTimesheetData, mockBills } from "@/lib/mock-data"
+import { mockTimesheetData, mockBills, issueSectionConfigs } from "@/lib/mock-data"
 
 export default function EntriesForReviewPage() {
   const params = useParams()
@@ -15,30 +15,12 @@ export default function EntriesForReviewPage() {
   // Filter entries by billId
   const billEntries = mockTimesheetData.filter((entry) => entry.billId === billId)
 
-  // TODO: dynamically load sections based on the matter's automation rules
-  const sections = [
-
-    {
-      id: "insufficient-detail",
-      title: "Insufficient Detail",
-      count: billEntries.filter((entry) => entry.issue === "insufficient-detail").length,
-    },
-    {
-      id: "poor-writing",
-      title: "Poor Writing Style",
-      count: billEntries.filter((entry) => entry.issue === "poor-writing").length,
-    },
-    {
-      id: "unusual-duration",
-      title: "Unusual Duration",
-      count: billEntries.filter((entry) => entry.issue === "unusual-duration").length,
-    },
-    {
-      id: "missing-info",
-      title: "Missing Information",
-      count: billEntries.filter((entry) => entry.issue === "missing-info").length,
-    },
-  ]
+  // Dynamically load sections based on the matter's automation rules
+  const sections = issueSectionConfigs.map(config => ({
+    id: config.id,
+    title: config.title,
+    count: billEntries.filter((entry) => entry.issue === config.id).length,
+  }))
 
   const totalEntries = billEntries.length
   const entriesWithSuggestions = billEntries.filter((entry) => entry.suggestedTask).length
@@ -103,38 +85,16 @@ export default function EntriesForReviewPage() {
         {/* Table of Contents */}
         <TableOfContents items={sections} />
 
-        {/* TODO: Populate these from the matter's automation rules */}
-        {/* Insufficient Detail Section */}
-        <IssueSection
-          title="Insufficient Detail"
-          description="Entries lacking enough information to accurately bill or understand the work performed. Add more context to these entries."
-          issueType="insufficient-detail"
-          data={billEntries.filter((entry) => entry.issue === "insufficient-detail")}
-        />
-
-        {/* Poor Writing Style Section */}
-        <IssueSection
-          title="Poor Writing Style"
-          description="Entries with unclear or poorly formatted descriptions that need improvement for client-facing invoices."
-          issueType="poor-writing"
-          data={billEntries.filter((entry) => entry.issue === "poor-writing")}
-        />
-
-        {/* Unusual Duration Section */}
-        <IssueSection
-          title="Unusual Duration"
-          description="Entries with time durations that are unusually short or long compared to similar tasks."
-          issueType="unusual-duration"
-          data={billEntries.filter((entry) => entry.issue === "unusual-duration")}
-        />
-
-        {/* Missing Information Section */}
-        <IssueSection
-          title="Missing Information"
-          description="Entries missing critical fields such as project code, client reference, or task category."
-          issueType="missing-info"
-          data={billEntries.filter((entry) => entry.issue === "missing-info")}
-        />
+        {/* Dynamically render issue sections from configuration */}
+        {issueSectionConfigs.map(config => (
+          <IssueSection
+            key={config.id}
+            title={config.title}
+            description={config.description}
+            issueType={config.id}
+            data={billEntries.filter((entry) => entry.issue === config.id)}
+          />
+        ))}
       </div>
     </main>
   )
