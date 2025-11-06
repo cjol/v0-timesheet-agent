@@ -38,6 +38,7 @@ export default function RequestReviewModal({
   const [selectedDocs, setSelectedDocs] = useState<Map<string, DocumentSelection>>(new Map())
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([])
   const [emailBody, setEmailBody] = useState<string>("")
+  // TODO: load default email body from central data source
   const [defaultEmailBody] = useState<string>(
     "<p>Dear Reviewer,</p><p><br></p><p>Please review the attached documents for this billing period.</p><p><br></p><p>Kind regards</p>"
   )
@@ -53,7 +54,7 @@ export default function RequestReviewModal({
   useEffect(() => {
     const emailBodyDoc = Array.from(selectedDocs.values()).find((doc) => doc.useAsEmailBody)
     if (emailBodyDoc) {
-      // In a real app, you would fetch the HTML content of the document here
+      // TODO: attach document contents to the document in the data source itself and use that
       setEmailBody(
         `<p>Content from document would be loaded here...</p><p><br></p><p>This is a placeholder for the HTML document content.</p>`
       )
@@ -107,7 +108,7 @@ export default function RequestReviewModal({
         isAttachment: isAttachment,
         useAsEmailBody: !isAttachment,
       }
-      
+
       // If adding as email body, uncheck all other documents' email body
       if (newDoc.useAsEmailBody) {
         newSelected.forEach((doc, id) => {
@@ -120,7 +121,7 @@ export default function RequestReviewModal({
           }
         })
       }
-      
+
       newSelected.set(docId, newDoc)
     }
 

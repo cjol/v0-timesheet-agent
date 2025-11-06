@@ -92,6 +92,7 @@ export default function MainNav() {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-md shadow-lg z-50">
                   <div className="py-1">
+                    {/* // TODO: replace these from centralised matter list, and allow setting the current matter in global context */}
                     {[
                       "Project Blackstone",
                       "Anderson Corp Litigation",

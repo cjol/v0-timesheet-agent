@@ -15,7 +15,9 @@ export default function EntriesForReviewPage() {
   // Filter entries by billId
   const billEntries = mockTimesheetData.filter((entry) => entry.billId === billId)
 
+  // TODO: dynamically load sections based on the matter's automation rules
   const sections = [
+
     {
       id: "insufficient-detail",
       title: "Insufficient Detail",
@@ -52,7 +54,7 @@ export default function EntriesForReviewPage() {
             <ol className="flex items-center gap-2 text-sm text-muted-foreground">
               <li>
                 <a href="/bills" className="hover:text-foreground transition-colors">
-                  Draft Bills
+                  Bills
                 </a>
               </li>
               <li>
@@ -101,6 +103,7 @@ export default function EntriesForReviewPage() {
         {/* Table of Contents */}
         <TableOfContents items={sections} />
 
+        {/* TODO: Populate these from the matter's automation rules */}
         {/* Insufficient Detail Section */}
         <IssueSection
           title="Insufficient Detail"
