@@ -2,10 +2,12 @@
 import { useState } from "react"
 import CodePopover from "@/components/code-popover"
 import { useAutomationRules } from "@/lib/hooks"
+import { useMatter } from "@/contexts/matter-context"
 import { ChevronDown, ChevronRight } from "lucide-react"
 
 export default function RulesPage() {
-  const { data: mockAutomationRules = [] } = useAutomationRules()
+  const { currentMatterId } = useMatter()
+  const { data: mockAutomationRules = [] } = useAutomationRules(currentMatterId)
   const [openReferences, setOpenReferences] = useState<Record<string, boolean>>({})
 
   const toggleReferences = (ruleId: string) => {

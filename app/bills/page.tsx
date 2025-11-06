@@ -1,9 +1,11 @@
 "use client"
 import Link from "next/link"
 import { useBills } from "@/lib/hooks"
+import { useMatter } from "@/contexts/matter-context"
 
 export default function BillsPage() {
-  const { data: mockBills = [] } = useBills()
+  const { currentMatterId } = useMatter()
+  const { data: mockBills = [] } = useBills(currentMatterId)
   const draftBills = mockBills.filter((b) => b.status === "Draft")
   const pastBills = mockBills.filter((b) => b.status === "Past")
 

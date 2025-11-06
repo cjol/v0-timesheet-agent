@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCi
 import { diff_match_patch, DIFF_DELETE, DIFF_INSERT } from "diff-match-patch"
 import Link from "next/link"
 import { useBills } from "@/lib/hooks"
+import { useMatter } from "@/contexts/matter-context"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -114,7 +115,8 @@ export default function EntriesTable({
   showReviewStatusColumn = false,
   showActionsColumn = true
 }: EntriesTableProps) {
-  const { data: mockBills = [] } = useBills()
+  const { currentMatterId } = useMatter()
+  const { data: mockBills = [] } = useBills(currentMatterId)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [activeFilterColumn, setActiveFilterColumn] = useState<string | null>(null)

@@ -4,9 +4,9 @@ import { useTimesheetData } from "@/lib/hooks"
 import { useMatter } from "@/contexts/matter-context"
 
 export default function TimeEntriesPage() {
-  const { currentMatterName } = useMatter()
-  const { data: mockTimesheetData = [] } = useTimesheetData()
-  
+  const { currentMatterName, currentMatterId } = useMatter()
+  const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-8 py-12">
@@ -17,8 +17,8 @@ export default function TimeEntriesPage() {
           </p>
         </div>
 
-        <EntriesTable 
-          data={mockTimesheetData} 
+        <EntriesTable
+          data={mockTimesheetData}
           showBillColumn={true}
           showReviewStatusColumn={true}
           showActionsColumn={false}

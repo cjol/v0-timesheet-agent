@@ -7,9 +7,9 @@ import { useTimesheetData, useBills } from "@/lib/hooks"
 import { useMatter } from "@/contexts/matter-context"
 
 export default function HomePage() {
-  const { currentMatterName } = useMatter()
-  const { data: mockTimesheetData = [] } = useTimesheetData()
-  const { data: mockBills = [] } = useBills()
+  const { currentMatterName, currentMatterId } = useMatter()
+  const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
+  const { data: mockBills = [] } = useBills(currentMatterId)
   // Calculate statistics for current matter
   const billedHours =
     mockTimesheetData.filter((e) => !["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
