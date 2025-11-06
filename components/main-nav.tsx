@@ -1,6 +1,7 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 
 export default function MainNav() {
@@ -33,7 +34,7 @@ export default function MainNav() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="h-8">
-            <img src="/logo.png" alt="FixMyTime" className="h-8" />
+            <Image src="/logo.png" alt="FixMyTime" width={32} height={32} className="h-8 w-auto" />
           </Link>
 
           {/* Navigation */}

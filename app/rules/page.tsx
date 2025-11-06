@@ -34,7 +34,7 @@ export default function RulesPage() {
             <div className="mb-12">
               <h1 className="text-3xl font-bold mb-2">Automation Rules</h1>
               <p className="text-muted-foreground">
-                View and understand the automation rules applied to this matter's billing process
+                View and understand the automation rules applied to this matter&apos;s billing process
               </p>
             </div>
 

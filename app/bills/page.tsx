@@ -31,7 +31,7 @@ export default function BillsPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">${bill.amount.toLocaleString()}</p>
+                    <p className="font-semibold">£{bill.amount.toLocaleString()}</p>
                   </div>
                   <div className="ml-4 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
                     {bill.status}
@@ -58,7 +58,7 @@ export default function BillsPage() {
                     <p className="text-sm text-muted-foreground">{bill.entries} entries</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">${bill.amount.toLocaleString()}</p>
+                    <p className="font-semibold">£{bill.amount.toLocaleString()}</p>
                   </div>
                   <div className="ml-4 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
                     {bill.status}

@@ -123,7 +123,7 @@ export default function SettingsPage() {
                   <tr key={tk.id} className="border-b border-border hover:bg-muted/30">
                     <td className="px-4 py-3">{tk.name}</td>
                     <td className="px-4 py-3">{tk.role}</td>
-                    <td className="px-4 py-3 font-medium">${tk.billingRate}/hr</td>
+                    <td className="px-4 py-3 font-medium">£{tk.billingRate}/hr</td>
                   </tr>
                 ))}
               </tbody>

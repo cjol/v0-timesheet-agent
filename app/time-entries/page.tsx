@@ -1,5 +1,5 @@
 "use client"
-import TimeEntriesTable from "@/components/time-entries-table"
+import EntriesTable from "@/components/entries-table"
 import { mockTimesheetData } from "@/lib/mock-data"
 
 export default function TimeEntriesPage() {
@@ -13,7 +13,12 @@ export default function TimeEntriesPage() {
           </p>
         </div>
 
-        <TimeEntriesTable data={mockTimesheetData} />
+        <EntriesTable 
+          data={mockTimesheetData} 
+          showBillColumn={true}
+          showReviewStatusColumn={true}
+          showActionsColumn={false}
+        />
 
         <div className="mt-8 text-sm text-muted-foreground">
           <p>Tip: Click on review status badges to jump to the relevant section in the Entries for Review page.</p>

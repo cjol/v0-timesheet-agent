@@ -5,7 +5,10 @@ import { Analytics } from "@vercel/analytics/next"
 import MainNav from "@/components/main-nav"
 import "./globals.css"
 
+// Seem unused, but Next reads these vars from the module scope magically
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geist = Geist({ subsets: ["latin"] })
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {

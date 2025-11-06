@@ -2,7 +2,9 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles, Undo2 } from "lucide-react"
-import { diff_match_patch, DIFF_DELETE, DIFF_INSERT, DIFF_EQUAL } from "diff-match-patch"
+import { diff_match_patch, DIFF_DELETE, DIFF_INSERT } from "diff-match-patch"
+import Link from "next/link"
+import { mockBills } from "@/lib/mock-data"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -51,31 +53,35 @@ interface Entry {
   issue: string
   suggestedTask?: string
   actionLog?: ActionLogEntry[]
+  billId?: string
 }
 
 interface EntriesTableProps {
   data: Entry[]
-  issueType: string
+  issueType?: string
   isFullscreen?: boolean
   onEditingChange?: (isEditing: boolean) => void
+  showBillColumn?: boolean
+  showReviewStatusColumn?: boolean
+  showActionsColumn?: boolean
 }
 
 const columnHelper = createColumnHelper<Entry>()
 
 const renderTaskDiff = (oldText: string, newText: string) => {
   const dmp = new diff_match_patch()
-  
+
   // First, compute character-level diffs
   const diffs = dmp.diff_main(oldText, newText)
-  
+
   // Clean up the diffs for better semantic quality
   dmp.diff_cleanupSemantic(diffs)
-  
+
   return (
     <div className="font-mono text-sm">
       {diffs.map((diff, index) => {
         const [operation, text] = diff
-        
+
         if (operation === DIFF_DELETE) {
           return (
             <span key={index} className="text-red-600/60 line-through">
@@ -83,7 +89,7 @@ const renderTaskDiff = (oldText: string, newText: string) => {
             </span>
           )
         }
-        
+
         if (operation === DIFF_INSERT) {
           return (
             <span key={index} className="text-green-600 font-medium">
@@ -91,14 +97,22 @@ const renderTaskDiff = (oldText: string, newText: string) => {
             </span>
           )
         }
-        
+
         return <span key={index}>{text}</span>
       })}
     </div>
   )
 }
 
-export default function EntriesTable({ data, issueType, isFullscreen, onEditingChange }: EntriesTableProps) {
+export default function EntriesTable({
+  data,
+  issueType,
+  isFullscreen,
+  onEditingChange,
+  showBillColumn = false,
+  showReviewStatusColumn = false,
+  showActionsColumn = true
+}: EntriesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [activeFilterColumn, setActiveFilterColumn] = useState<string | null>(null)
@@ -175,7 +189,7 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
     const allTimekeepers = useMemo(() => {
       const keepers = new Set(editedData.map(entry => entry.timekeeper))
       return Array.from(keepers).sort()
-    }, [editedData])
+    }, [])
 
     useEffect(() => {
       if (isEditing) {
@@ -249,163 +263,231 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
   }
 
   const columns = useMemo(
-    () => [
-      columnHelper.accessor("date", {
-        header: "Date",
-        size: 120,
-        cell: (info) => (
-          <EditableCell
-            rowId={info.row.original.id}
-            columnId="date"
-            value={info.getValue()}
-            type="date"
-          />
-        ),
-        sortingFn: (rowA, rowB) => {
-          const dateA = new Date(rowA.original.date).getTime()
-          const dateB = new Date(rowB.original.date).getTime()
-          return dateA - dateB
-        },
-      }),
-      columnHelper.accessor("timekeeper", {
-        header: "Time Keeper",
-        size: 180,
-        cell: (info) => (
-          <SearchableDropdownCell
-            rowId={info.row.original.id}
-            value={info.getValue()}
-          />
-        ),
-      }),
-      columnHelper.accessor("duration", {
-        header: "Duration",
-        size: 100,
-        cell: (info) => (
-          <EditableCell
-            rowId={info.row.original.id}
-            columnId="duration"
-            value={info.getValue()}
-            type="number"
-          />
-        ),
-      }),
-      columnHelper.accessor("task", {
-        header: "Task",
-        size: undefined,
-        cell: (info) => {
-          const row = info.row.original
+    () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cols: any[] = [
+        columnHelper.accessor("date", {
+          header: "Date",
+          size: 120,
+          cell: (info) => (
+            <EditableCell
+              rowId={info.row.original.id}
+              columnId="date"
+              value={info.getValue()}
+              type="date"
+            />
+          ),
+          sortingFn: (rowA, rowB) => {
+            const dateA = new Date(rowA.original.date).getTime()
+            const dateB = new Date(rowB.original.date).getTime()
+            return dateA - dateB
+          },
+        }),
+        columnHelper.accessor("timekeeper", {
+          header: "Time Keeper",
+          size: 180,
+          cell: (info) => (
+            <SearchableDropdownCell
+              rowId={info.row.original.id}
+              value={info.getValue()}
+            />
+          ),
+        }),
+        columnHelper.accessor("duration", {
+          header: "Duration",
+          size: 100,
+          cell: (info) => (
+            <EditableCell
+              rowId={info.row.original.id}
+              columnId="duration"
+              value={info.getValue()}
+              type="number"
+            />
+          ),
+        }),
+        columnHelper.accessor("task", {
+          header: "Task",
+          size: undefined,
+          cell: (info) => {
+            const row = info.row.original
 
-          if (row.suggestedTask) {
+            if (row.suggestedTask) {
+              return (
+                <div className="py-1">
+                  {renderTaskDiff(info.getValue(), row.suggestedTask)}
+                </div>
+              )
+            }
+
             return (
-              <div className="py-1">
-                {renderTaskDiff(info.getValue(), row.suggestedTask)}
+              <div className="font-mono">
+                <EditableCell
+                  rowId={info.row.original.id}
+                  columnId="task"
+                  value={info.getValue()}
+                />
               </div>
             )
-          }
+          },
+        }),
+      ]
 
-          return (
-            <div className="font-mono">
-              <EditableCell
-                rowId={info.row.original.id}
-                columnId="task"
-                value={info.getValue()}
-              />
-            </div>
-          )
-        },
-      }),
-      columnHelper.display({
-        id: "actions",
-        header: "",
-        size: 150,
-        cell: (info) => {
-          const isInsufficientDetail = issueType === "insufficient-detail"
+      if (showBillColumn) {
+        cols.push(
+          columnHelper.display({
+            id: "bill",
+            header: "Bill",
+            size: 120,
+            cell: (info) => {
+              const entry = info.row.original
+              if (!entry.billId) {
+                return <span className="text-xs text-muted-foreground">Unassigned</span>
+              }
+              const bill = mockBills.find(b => b.id === entry.billId)
+              if (!bill) {
+                return <span className="text-xs text-muted-foreground">Unknown</span>
+              }
+              return (
+                <Link href={`/bills/${bill.id}`} className="text-primary hover:underline text-xs">
+                  {bill.period}
+                </Link>
+              )
+            },
+          })
+        )
+      }
 
-          return (
-            <div className="flex items-center gap-1">
-              {isInsufficientDetail && info.row.original.actionLog ? (
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0 hover:bg-pink-500/10 hover:text-pink-600 cursor-pointer"
-                        title="Action Log"
-                      >
-                        <Sparkles className="h-4 w-4 text-pink-600" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-md">
-                      <div className="space-y-2">
-                        <p className="font-semibold text-xs">Action Log</p>
-                        <div className="space-y-1.5">
-                          {info.row.original.actionLog.map((log, index) => {
-                            const logDate = new Date(log.timestamp).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })
-                            return (
-                              <div key={index} className="text-xs text-muted-foreground grid grid-cols-[auto_auto_1fr_auto] gap-2 items-start">
-                                <span className="font-medium">{logDate}</span>
-                                <span className="text-primary font-medium">{log.actor}</span>
-                                <span>{log.message}</span>
-                                {log.undoable && (
-                                  <button
-                                    onClick={() => console.log('Undo action:', log.message)}
-                                    className="text-muted-foreground hover:text-foreground transition-colors"
-                                    title="Undo this action"
-                                  >
-                                    <Undo2 className="h-3 w-3" />
-                                  </button>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ) : (
-                <div className="h-7 w-7 flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-gray-300" />
+      if (showReviewStatusColumn) {
+        cols.push(
+          columnHelper.display({
+            id: "reviewStatus",
+            header: "Review Status",
+            size: 160,
+            cell: (info) => {
+              const entry = info.row.original
+              if (entry.issue) {
+                const label = entry.issue
+                  .split("-")
+                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                  .join(" ")
+                return (
+                  <Link
+                    href={`/bills/${entry.billId}/entries-for-review#${entry.issue}`}
+                    className="inline-block px-2 py-1 rounded text-xs font-medium text-amber-600 bg-amber-50 hover:opacity-80 transition-opacity"
+                  >
+                    {label}
+                  </Link>
+                )
+              }
+              return (
+                <span className="inline-block px-2 py-1 rounded text-xs font-medium text-green-600 bg-green-50">
+                  No issues
+                </span>
+              )
+            },
+          })
+        )
+      }
+
+      if (showActionsColumn) {
+        cols.push(
+          columnHelper.display({
+            id: "actions",
+            header: "",
+            size: 150,
+            cell: (info) => {
+              const isInsufficientDetail = issueType === "insufficient-detail"
+
+              return (
+                <div className="flex items-center gap-1">
+                  {isInsufficientDetail && info.row.original.actionLog ? (
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 hover:bg-pink-500/10 hover:text-pink-600 cursor-pointer"
+                            title="Action Log"
+                          >
+                            <Sparkles className="h-4 w-4 text-pink-600" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="max-w-md">
+                          <div className="space-y-2">
+                            <p className="font-semibold text-xs">Action Log</p>
+                            <div className="space-y-1.5">
+                              {info.row.original.actionLog.map((log, index) => {
+                                const logDate = new Date(log.timestamp).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric'
+                                })
+                                return (
+                                  <div key={index} className="text-xs text-muted-foreground grid grid-cols-[auto_auto_1fr_auto] gap-2 items-start">
+                                    <span className="font-medium">{logDate}</span>
+                                    <span className="text-primary font-medium">{log.actor}</span>
+                                    <span>{log.message}</span>
+                                    {log.undoable && (
+                                      <button
+                                        onClick={() => console.log('Undo action:', log.message)}
+                                        className="text-muted-foreground hover:text-foreground transition-colors"
+                                        title="Undo this action"
+                                      >
+                                        <Undo2 className="h-3 w-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <div className="h-7 w-7 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-gray-300" />
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 hover:bg-green-500/10 hover:text-green-600 cursor-pointer"
+                    onClick={() => console.log('Approve', info.row.original.id)}
+                    title="Approve"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 hover:bg-red-500/10 hover:text-red-600 cursor-pointer"
+                    onClick={() => console.log('Reject', info.row.original.id)}
+                    title="Reject"
+                  >
+                    <XCircle className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 hover:bg-blue-500/10 hover:text-blue-600 cursor-pointer"
+                    onClick={() => console.log('View Details', info.row.original.id)}
+                    title="View Details"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 hover:bg-green-500/10 hover:text-green-600 cursor-pointer"
-                onClick={() => console.log('Approve', info.row.original.id)}
-                title="Approve"
-              >
-                <CheckCircle className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 hover:bg-red-500/10 hover:text-red-600 cursor-pointer"
-                onClick={() => console.log('Reject', info.row.original.id)}
-                title="Reject"
-              >
-                <XCircle className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 hover:bg-blue-500/10 hover:text-blue-600 cursor-pointer"
-                onClick={() => console.log('View Details', info.row.original.id)}
-                title="View Details"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-            </div>
-          )
-        },
-      }),
-    ],
-    [editingCell, issueType]
+              )
+            },
+          })
+        )
+      }
+
+      return cols
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [editingCell, issueType, showBillColumn, showReviewStatusColumn, showActionsColumn]
   )
 
   const table = useReactTable({
@@ -463,7 +545,7 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
     const showFilterIcon = isHovered || hasActiveFilter || isFilterOpen
 
     return (
-      <th 
+      <th
         className="text-sm font-medium text-foreground py-3 px-4 text-left"
         style={{ width: header?.getSize() !== 150 ? header?.getSize() : undefined }}
       >
@@ -532,11 +614,22 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
         <table className="w-full border-collapse">
           <thead className="sticky top-0 bg-card z-20">
             <tr className="border-b border-border">
-              <SortHeaderCell headerId="date" label="Date" />
-              <SortHeaderCell headerId="timekeeper" label="Time Keeper" />
-              <SortHeaderCell headerId="duration" label="Duration" />
-              <SortHeaderCell headerId="task" label="Task" />
-              <th className="text-sm font-medium text-foreground py-3 px-4 text-left"></th>
+              {table.getHeaderGroups()[0].headers.map((header) => {
+                if (header.id === "actions" || header.id === "bill" || header.id === "reviewStatus") {
+                  return (
+                    <th key={header.id} className="text-sm font-medium text-foreground py-3 px-4 text-left">
+                      {header.column.columnDef.header as string}
+                    </th>
+                  )
+                }
+                const labels: Record<string, string> = {
+                  date: "Date",
+                  timekeeper: "Time Keeper",
+                  duration: "Duration",
+                  task: "Task",
+                }
+                return <SortHeaderCell key={header.id} headerId={header.id} label={labels[header.id] || header.id} />
+              })}
             </tr>
           </thead>
           <tbody>
@@ -549,8 +642,8 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
                 )}
               >
                  {row.getVisibleCells().map((cell) => (
-                   <td 
-                     key={cell.id} 
+                   <td
+                     key={cell.id}
                      className="px-4 py-3 text-sm"
                      style={{ width: cell.column.getSize() !== 150 ? cell.column.getSize() : undefined }}
                    >
@@ -567,8 +660,7 @@ export default function EntriesTable({ data, issueType, isFullscreen, onEditingC
               </td>
               <td className="px-4 py-3 text-sm" style={{ width: 180 }}></td>
               <td className="px-4 py-3 text-sm font-medium" style={{ width: 100 }}>{stats.totalDuration}h total</td>
-              <td className="px-4 py-3 text-sm text-muted-foreground">Avg: {stats.avgDuration}h</td>
-              <td className="px-4 py-3 text-sm" style={{ width: 150 }}></td>
+              <td className="px-4 py-3 text-sm text-muted-foreground" colSpan={columns.length - 3}>Avg: {stats.avgDuration}h</td>
             </tr>
           </tfoot>
         </table>

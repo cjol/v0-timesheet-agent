@@ -3,12 +3,13 @@
 import { useState, useRef } from "react"
 import { Maximize2, Minimize2 } from "lucide-react"
 import EntriesTable from "./entries-table"
+import type { TimesheetEntry } from "@/lib/mock-data"
 
 interface IssueSectionProps {
   title: string
   description: string
   issueType: string
-  data: any[]
+  data: TimesheetEntry[]
 }
 
 export default function IssueSection({ title, description, issueType, data }: IssueSectionProps) {

@@ -1,19 +1,20 @@
 export interface ActionLogEntry {
-  message: string
-  timestamp: string
-  actor: string
-  undoable?: boolean
+  message: string;
+  timestamp: string;
+  actor: string;
+  undoable?: boolean;
 }
 
 export interface TimesheetEntry {
-  id: string
-  date: string
-  timekeeper: string
-  duration: number
-  task: string
-  issue: string
-  suggestedTask?: string
-  actionLog?: ActionLogEntry[]
+  id: string;
+  date: string;
+  timekeeper: string;
+  duration: number;
+  task: string;
+  issue: string;
+  suggestedTask?: string;
+  actionLog?: ActionLogEntry[];
+  billId?: string;
 }
 
 export const mockTimesheetData: TimesheetEntry[] = [
@@ -25,6 +26,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.5,
     task: "Work on project",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Sarah Chen",
@@ -41,6 +43,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Meetings",
     suggestedTask: "Meeting with design team to discuss UI/UX improvements",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Marcus Johnson.",
@@ -62,6 +65,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 3,
     task: "Development",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Emma Rodriguez",
@@ -82,6 +86,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.25,
     task: "Code review",
     issue: "insufficient-detail",
+    billId: "bill-001",
     suggestedTask: "Code review of authentication module pull request",
     actionLog: [
       {
@@ -104,6 +109,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.75,
     task: "Testing phase",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Jordan Lee",
@@ -119,6 +125,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 3.5,
     task: "API work",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Casey Wong",
@@ -134,6 +141,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2,
     task: "Design collaboration",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Morgan Smith",
@@ -149,6 +157,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.5,
     task: "Documentation update",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Riley Davis",
@@ -164,6 +173,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.75,
     task: "Client meeting prep",
     issue: "insufficient-detail",
+    billId: "bill-001",
     actionLog: [
       {
         message: "Email requesting clarification sent to Taylor Brown",
@@ -179,6 +189,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.25,
     task: "Infrastructure work",
     issue: "insufficient-detail",
+    billId: "bill-002",
     actionLog: [
       {
         message: "Email requesting clarification sent to Harper Martin",
@@ -196,6 +207,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2,
     task: "Fixed authentification bug",
     issue: "poor-writing",
+    billId: "bill-001",
     suggestedTask: "Fixed authentication bug",
   },
   {
@@ -205,6 +217,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.75,
     task: "updated the client dashboard with new metrics",
     issue: "poor-writing",
+    billId: "bill-001",
     suggestedTask: "Updated client dashboard with analytics metrics and charts",
   },
   {
@@ -214,6 +227,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.25,
     task: "URGENT FIX NEEDED ASAP!!!",
     issue: "poor-writing",
+    billId: "bill-001",
     suggestedTask: "Resolved critical payment processing error",
   },
   {
@@ -223,6 +237,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.5,
     task: "working on stuff",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Implemented user profile settings page",
   },
   {
@@ -232,6 +247,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.5,
     task: "fixed some things idk",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Corrected responsive layout issues on mobile",
   },
   {
@@ -241,6 +257,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.25,
     task: "doing the update thing",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Refined search algorithm and filters",
   },
   {
@@ -250,6 +267,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2,
     task: "SUPER IMPORTANT WORK!!!!!!",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Implemented data export functionality",
   },
   {
@@ -259,6 +277,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.75,
     task: "stuff and things",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Built notification system components",
   },
   {
@@ -268,6 +287,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.25,
     task: "whatever needs doin",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Completed API integration for third-party service",
   },
   {
@@ -277,6 +297,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.5,
     task: "thing thing thing",
     issue: "poor-writing",
+    billId: "bill-002",
     suggestedTask: "Fixed authentication bug",
   },
 
@@ -288,6 +309,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 0.25,
     task: "Code review and feedback",
     issue: "unusual-duration",
+    billId: "bill-001",
   },
   {
     id: "8",
@@ -296,6 +318,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 7.5,
     task: "UI component library updates",
     issue: "unusual-duration",
+    billId: "bill-001",
   },
   {
     id: "9",
@@ -304,6 +327,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 0.5,
     task: "Database optimization",
     issue: "unusual-duration",
+    billId: "bill-001",
   },
   {
     id: "10",
@@ -312,6 +336,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 8,
     task: "API integration testing",
     issue: "unusual-duration",
+    billId: "bill-001",
   },
   {
     id: "28",
@@ -320,6 +345,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 0.1,
     task: "Quick sync",
     issue: "unusual-duration",
+    billId: "bill-002",
   },
   {
     id: "29",
@@ -328,6 +354,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 6.5,
     task: "Full day sprint work",
     issue: "unusual-duration",
+    billId: "bill-002",
   },
   {
     id: "30",
@@ -336,6 +363,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 0.75,
     task: "Standup and planning",
     issue: "unusual-duration",
+    billId: "bill-002",
   },
   {
     id: "31",
@@ -344,6 +372,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 7.25,
     task: "Extended debugging session",
     issue: "unusual-duration",
+    billId: "bill-003",
   },
   {
     id: "32",
@@ -352,6 +381,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 0.33,
     task: "Email sync",
     issue: "unusual-duration",
+    billId: "bill-003",
   },
   {
     id: "33",
@@ -360,6 +390,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 5.75,
     task: "Feature implementation",
     issue: "unusual-duration",
+    billId: "bill-003",
   },
 
   // Missing Information
@@ -370,6 +401,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2,
     task: "Client project work",
     issue: "missing-info",
+    billId: "bill-001",
   },
   {
     id: "12",
@@ -378,6 +410,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 3.5,
     task: "Strategic planning",
     issue: "missing-info",
+    billId: "bill-001",
   },
   {
     id: "13",
@@ -386,6 +419,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.5,
     task: "Team collaboration",
     issue: "missing-info",
+    billId: "bill-001",
   },
   {
     id: "34",
@@ -394,6 +428,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.25,
     task: "Project coordination",
     issue: "missing-info",
+    billId: "bill-003",
   },
   {
     id: "35",
@@ -402,6 +437,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.75,
     task: "Stakeholder meeting",
     issue: "missing-info",
+    billId: "bill-003",
   },
   {
     id: "36",
@@ -410,6 +446,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 3,
     task: "Workshop attendance",
     issue: "missing-info",
+    billId: "bill-003",
   },
   {
     id: "37",
@@ -418,6 +455,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.5,
     task: "Process review",
     issue: "missing-info",
+    billId: "bill-003",
   },
   {
     id: "38",
@@ -426,6 +464,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.5,
     task: "Team sync session",
     issue: "missing-info",
+    billId: "bill-003",
   },
   {
     id: "39",
@@ -434,6 +473,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 2.75,
     task: "Budget planning",
     issue: "missing-info",
+    billId: "bill-003",
   },
   {
     id: "40",
@@ -442,32 +482,28 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.25,
     task: "Resource allocation",
     issue: "missing-info",
+    billId: "bill-003",
   },
-]
+];
 
 export interface Bill {
-  id: string
-  matter: string
-  period: string
-  status: "Draft" | "Past"
-  amount: number
-  entries: number
-  issues: number
+  id: string;
+  matter: string;
+  period: string;
+  status: "Draft" | "Past";
+  amount: number;
+  entries: number;
+  issues: number;
 }
 
 export interface BillDocument {
-  id: string
-  title: string
-  type: string
-  reviewStatus: "no-review" | "pending" | "approved" | "changes-required"
-  reviewers?: string[]
-  feedback?: string
-  downloadUrl: string
-}
-
-export interface BillDetail extends Bill {
-  documents: BillDocument[]
-  entries: TimesheetEntry[]
+  id: string;
+  title: string;
+  type: string;
+  reviewStatus: "no-review" | "pending" | "approved" | "changes-required";
+  reviewers?: string[];
+  feedback?: string;
+  downloadUrl: string;
 }
 
 export const mockBillDocuments: BillDocument[] = [
@@ -493,7 +529,8 @@ export const mockBillDocuments: BillDocument[] = [
     type: "PDF",
     reviewStatus: "changes-required",
     reviewers: ["John Smith"],
-    feedback: "Please clarify the hours logged for administrative work. Some entries appear to lack detail.",
+    feedback:
+      "Please clarify the hours logged for administrative work. Some entries appear to lack detail.",
     downloadUrl: "#",
   },
   {
@@ -503,19 +540,7 @@ export const mockBillDocuments: BillDocument[] = [
     reviewStatus: "no-review",
     downloadUrl: "#",
   },
-]
-
-// Extended mockBills with document data
-export const mockBillDetail: BillDetail = {
-  id: "bill-001",
-  matter: "Project Blackstone",
-  period: "October 2025",
-  status: "Draft",
-  amount: 12450,
-  entries: 40,
-  issues: 15,
-  documents: mockBillDocuments,
-}
+];
 
 export const mockBills: Bill[] = [
   {
@@ -545,47 +570,62 @@ export const mockBills: Bill[] = [
     entries: 32,
     issues: 0,
   },
-]
+];
 
 export interface Timekeeper {
-  id: string
-  name: string
-  role: string
-  billingRate: number
+  id: string;
+  name: string;
+  role: string;
+  billingRate: number;
 }
 
 export interface OtherParticipant {
-  id: string
-  name: string
-  role: string
+  id: string;
+  name: string;
+  role: string;
 }
 
 export interface ContextDocument {
-  id: string
-  title: string
-  url: string
+  id: string;
+  title: string;
+  url: string;
 }
 
 export const mockTimekeepers: Timekeeper[] = [
-  { id: "tk-1", name: "Sarah Chen", role: "Senior Associate", billingRate: 350 },
+  {
+    id: "tk-1",
+    name: "Sarah Chen",
+    role: "Senior Associate",
+    billingRate: 350,
+  },
   { id: "tk-2", name: "Marcus Johnson", role: "Associate", billingRate: 250 },
   { id: "tk-3", name: "Emma Rodriguez", role: "Partner", billingRate: 450 },
   { id: "tk-4", name: "Alex Thompson", role: "Associate", billingRate: 250 },
-  { id: "tk-5", name: "Jordan Lee", role: "Junior Associate", billingRate: 175 },
-  { id: "tk-6", name: "Casey Wong", role: "Senior Associate", billingRate: 350 },
-]
+  {
+    id: "tk-5",
+    name: "Jordan Lee",
+    role: "Junior Associate",
+    billingRate: 175,
+  },
+  {
+    id: "tk-6",
+    name: "Casey Wong",
+    role: "Senior Associate",
+    billingRate: 350,
+  },
+];
 
 export const mockOtherParticipants: OtherParticipant[] = [
   { id: "op-1", name: "John Smith", role: "Client Contact" },
   { id: "op-2", name: "Linda Garcia", role: "Project Manager" },
   { id: "op-3", name: "David Chen", role: "Technical Lead" },
-]
+];
 
 export const mockContextDocuments: ContextDocument[] = [
   { id: "cd-1", title: "Client Billing Guidelines", url: "#" },
   { id: "cd-2", title: "Project Scope Document", url: "#" },
   { id: "cd-3", title: "Rate Card 2025", url: "#" },
-]
+];
 
 export const mockMatterContext = {
   id: "matter-001",
@@ -598,27 +638,28 @@ export const mockMatterContext = {
     "Hourly billing with 0.25 hour minimum increments",
     "All expenses billed at cost plus 10%",
   ],
-}
+};
 
 export interface AutomationRule {
-  id: string
-  title: string
-  description: string
-  references: string[]
-  steps: AutomationStep[]
+  id: string;
+  title: string;
+  description: string;
+  references: string[];
+  steps: AutomationStep[];
 }
 
 export interface AutomationStep {
-  number: string
-  description: string
-  code: string
+  number: string;
+  description: string;
+  code: string;
 }
 
 export const mockAutomationRules: AutomationRule[] = [
   {
     id: "rule-1",
     title: "Insufficient Detail",
-    description: "Automatically detect and request clarification for entries lacking sufficient detail",
+    description:
+      "Automatically detect and request clarification for entries lacking sufficient detail",
     references: ["Client Billing Guidelines", "Matter Context"],
     steps: [
       {
@@ -671,7 +712,8 @@ updateReviewStatus(entry, {
   {
     id: "rule-2",
     title: "Poor Writing Style",
-    description: "Identify and improve poorly formatted or unclear time entry descriptions",
+    description:
+      "Identify and improve poorly formatted or unclear time entry descriptions",
     references: ["Client Billing Guidelines", "Style Guide"],
     steps: [
       {
@@ -735,4 +777,4 @@ sendReviewRequest(entry, {
       },
     ],
   },
-]
+];

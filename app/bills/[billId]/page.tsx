@@ -1,22 +1,36 @@
 "use client"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Download, MessageCircle, Lock } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import ReviewStatusBadge from "@/components/review-status-badge"
 import RequestReviewModal from "@/components/request-review-modal"
-import TimeEntriesTable from "@/components/time-entries-table"
-import { mockBillDetail, mockTimesheetData } from "@/lib/mock-data"
+import EntriesTable from "@/components/entries-table"
+import { mockBills, mockBillDocuments, mockTimesheetData } from "@/lib/mock-data"
 
 export default function BillDetailPage() {
+  const params = useParams()
+  const billId = params.billId as string
+
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState<string | null>(null)
 
-  const documents = mockBillDetail.documents
+  // Find the bill data for this specific billId
+  const bill = useMemo(() => {
+    return mockBills.find(b => b.id === billId) || mockBills[0]
+  }, [billId])
+
+  const documents = mockBillDocuments
   const participants = [
     { id: "p-1", name: "John Smith" },
     { id: "p-2", name: "Linda Garcia" },
     { id: "p-3", name: "David Chen" },
   ]
+
+  // Filter time entries for this bill
+  const billEntries = useMemo(() => {
+    return mockTimesheetData.filter(entry => entry.billId === billId)
+  }, [billId])
 
   const getReviewersList = (doc: (typeof documents)[0]) => {
     if (!doc.reviewers) return "No one"
@@ -33,12 +47,12 @@ export default function BillDetailPage() {
           </Link>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">{mockBillDetail.period}</h1>
-              <p className="text-muted-foreground">{mockBillDetail.matter}</p>
+              <h1 className="text-3xl font-bold mb-2">{bill.period}</h1>
+              <p className="text-muted-foreground">{bill.matter}</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold">${mockBillDetail.amount.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">{mockBillDetail.entries} entries</p>
+              <p className="text-3xl font-bold">£{bill.amount.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{billEntries.length} entries</p>
             </div>
           </div>
         </div>
@@ -106,7 +120,12 @@ export default function BillDetailPage() {
         {/* Time Entries Section */}
         <div className="mb-12">
           <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Time Entries</h2>
-          <TimeEntriesTable data={mockTimesheetData.slice(0, 10)} />
+          <EntriesTable 
+            data={billEntries}
+            showBillColumn={false}
+            showReviewStatusColumn={true}
+            showActionsColumn={false}
+          />
         </div>
       </div>
 

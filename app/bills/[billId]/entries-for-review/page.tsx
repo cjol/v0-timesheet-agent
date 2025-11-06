@@ -1,32 +1,45 @@
 "use client"
+import { useParams } from "next/navigation"
 import { CheckCircle, XCircle } from "lucide-react"
 import IssueSection from "@/components/issue-section"
 import TableOfContents from "@/components/table-of-contents"
-import { mockTimesheetData } from "@/lib/mock-data"
+import { mockTimesheetData, mockBills } from "@/lib/mock-data"
 
 export default function EntriesForReviewPage() {
+  const params = useParams()
+  const billId = params.billId as string
+
+  // Find the bill to display its period in the breadcrumb
+  const bill = mockBills.find((b) => b.id === billId)
+
+  // Filter entries by billId
+  const billEntries = mockTimesheetData.filter((entry) => entry.billId === billId)
+
   const sections = [
     {
       id: "insufficient-detail",
       title: "Insufficient Detail",
-      count: mockTimesheetData.filter((entry) => entry.issue === "insufficient-detail").length,
+      count: billEntries.filter((entry) => entry.issue === "insufficient-detail").length,
     },
     {
       id: "poor-writing",
       title: "Poor Writing Style",
-      count: mockTimesheetData.filter((entry) => entry.issue === "poor-writing").length,
+      count: billEntries.filter((entry) => entry.issue === "poor-writing").length,
     },
     {
       id: "unusual-duration",
       title: "Unusual Duration",
-      count: mockTimesheetData.filter((entry) => entry.issue === "unusual-duration").length,
+      count: billEntries.filter((entry) => entry.issue === "unusual-duration").length,
     },
     {
       id: "missing-info",
       title: "Missing Information",
-      count: mockTimesheetData.filter((entry) => entry.issue === "missing-info").length,
+      count: billEntries.filter((entry) => entry.issue === "missing-info").length,
     },
   ]
+
+  const totalEntries = billEntries.length
+  const entriesWithSuggestions = billEntries.filter((entry) => entry.suggestedTask).length
 
   return (
     <main className="min-h-screen bg-background text-foreground relative">
@@ -48,8 +61,8 @@ export default function EntriesForReviewPage() {
                 </svg>
               </li>
               <li>
-                <a href="/bills/bill-001" className="hover:text-foreground transition-colors">
-                  October 2025
+                <a href={`/bills/${billId}`} className="hover:text-foreground transition-colors">
+                  {bill?.period || billId}
                 </a>
               </li>
               <li>
@@ -66,8 +79,8 @@ export default function EntriesForReviewPage() {
 
           {/* Summary */}
           <p className="text-base text-muted-foreground leading-relaxed max-w-3xl">
-            <span className="font-semibold text-foreground">40 entries</span> from this bill have been flagged for your
-            review. <span className="font-semibold text-foreground">15</span> have suggestions for you to approve.
+            <span className="font-semibold text-foreground">{totalEntries} entries</span> from this bill have been flagged for your
+            review. <span className="font-semibold text-foreground">{entriesWithSuggestions}</span> have suggestions for you to approve.
           </p>
 
           <p className="text-base text-muted-foreground leading-relaxed max-w-3xl mt-2">
@@ -93,7 +106,7 @@ export default function EntriesForReviewPage() {
           title="Insufficient Detail"
           description="Entries lacking enough information to accurately bill or understand the work performed. Add more context to these entries."
           issueType="insufficient-detail"
-          data={mockTimesheetData.filter((entry) => entry.issue === "insufficient-detail")}
+          data={billEntries.filter((entry) => entry.issue === "insufficient-detail")}
         />
 
         {/* Poor Writing Style Section */}
@@ -101,7 +114,7 @@ export default function EntriesForReviewPage() {
           title="Poor Writing Style"
           description="Entries with unclear or poorly formatted descriptions that need improvement for client-facing invoices."
           issueType="poor-writing"
-          data={mockTimesheetData.filter((entry) => entry.issue === "poor-writing")}
+          data={billEntries.filter((entry) => entry.issue === "poor-writing")}
         />
 
         {/* Unusual Duration Section */}
@@ -109,7 +122,7 @@ export default function EntriesForReviewPage() {
           title="Unusual Duration"
           description="Entries with time durations that are unusually short or long compared to similar tasks."
           issueType="unusual-duration"
-          data={mockTimesheetData.filter((entry) => entry.issue === "unusual-duration")}
+          data={billEntries.filter((entry) => entry.issue === "unusual-duration")}
         />
 
         {/* Missing Information Section */}
@@ -117,7 +130,7 @@ export default function EntriesForReviewPage() {
           title="Missing Information"
           description="Entries missing critical fields such as project code, client reference, or task category."
           issueType="missing-info"
-          data={mockTimesheetData.filter((entry) => entry.issue === "missing-info")}
+          data={billEntries.filter((entry) => entry.issue === "missing-info")}
         />
       </div>
     </main>
