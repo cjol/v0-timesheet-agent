@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
-import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles, Undo2 } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles, Undo2, Lock, Clock } from "lucide-react"
 import { diff_match_patch, DIFF_DELETE, DIFF_INSERT } from "diff-match-patch"
 import Link from "next/link"
 import { mockBills } from "@/lib/mock-data"
@@ -54,6 +54,7 @@ interface Entry {
   suggestedTask?: string
   actionLog?: ActionLogEntry[]
   billId?: string
+  awaitingAction?: boolean
 }
 
 interface EntriesTableProps {
@@ -136,12 +137,16 @@ export default function EntriesTable({
   const EditableCell = ({ rowId, columnId, value, type = "text" }: { rowId: string; columnId: keyof Entry; value: string | number; type?: "text" | "number" | "date" }) => {
     const isEditing = editingCell?.rowId === rowId && editingCell?.columnId === columnId
     const [localValue, setLocalValue] = useState(value)
+    const entry = editedData.find(e => e.id === rowId)
+    const bill = entry?.billId ? mockBills.find(b => b.id === entry.billId) : null
+    const isLocked = bill?.status === "Past"
 
     useEffect(() => {
       setLocalValue(value)
     }, [value])
 
     const handleDoubleClick = () => {
+      if (isLocked) return
       setEditingCell({ rowId, columnId })
       setLocalValue(value)
     }
@@ -184,6 +189,9 @@ export default function EntriesTable({
   const SearchableDropdownCell = ({ rowId, value }: { rowId: string; value: string }) => {
     const isEditing = editingCell?.rowId === rowId && editingCell?.columnId === "timekeeper"
     const [open, setOpen] = useState(false)
+    const entry = editedData.find(e => e.id === rowId)
+    const bill = entry?.billId ? mockBills.find(b => b.id === entry.billId) : null
+    const isLocked = bill?.status === "Past"
 
     // Get unique timekeepers from the data
     const allTimekeepers = useMemo(() => {
@@ -198,6 +206,7 @@ export default function EntriesTable({
     }, [isEditing])
 
     const handleDoubleClick = () => {
+      if (isLocked) return
       setEditingCell({ rowId, columnId: "timekeeper" })
     }
 
@@ -266,6 +275,93 @@ export default function EntriesTable({
     () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cols: any[] = [
+        columnHelper.display({
+          id: "status",
+          header: "",
+          size: 80,
+          cell: (info) => {
+            const entry = info.row.original
+            const bill = entry.billId ? mockBills.find(b => b.id === entry.billId) : null
+            const isLocked = bill?.status === "Past"
+            const hasActionLog = entry.actionLog && entry.actionLog.length > 0
+
+            return (
+              <div className="flex items-center justify-end gap-1">
+                {isLocked && (
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-center">
+                          <Lock className="h-4 w-4 text-gray-500" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Entry is locked (finalized bill)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+
+                {entry.awaitingAction && (
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-center">
+                          <Clock className="h-4 w-4 text-yellow-500" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Awaiting action</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+
+                {hasActionLog && entry.actionLog && (
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-center cursor-pointer">
+                          <Sparkles className="h-4 w-4" style={{ color: '#00b5a6' }} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-md">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-xs">Action Log</p>
+                          <div className="space-y-1.5">
+                            {entry.actionLog.map((log, index) => {
+                              const logDate = new Date(log.timestamp).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })
+                              return (
+                                <div key={index} className="text-xs text-muted-foreground grid grid-cols-[auto_auto_1fr_auto] gap-2 items-start">
+                                  <span className="font-medium">{logDate}</span>
+                                  <span className="text-primary font-medium">{log.actor}</span>
+                                  <span>{log.message}</span>
+                                  {log.undoable && (
+                                    <button
+                                      onClick={() => console.log('Undo action:', log.message)}
+                                      className="text-muted-foreground hover:text-foreground transition-colors"
+                                      title="Undo this action"
+                                    >
+                                      <Undo2 className="h-3 w-3" />
+                                    </button>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+            )
+          },
+        }),
         columnHelper.accessor("date", {
           header: "Date",
           size: 120,
@@ -337,7 +433,7 @@ export default function EntriesTable({
           columnHelper.display({
             id: "bill",
             header: "Bill",
-            size: 120,
+            size: 150,
             cell: (info) => {
               const entry = info.row.original
               if (!entry.billId) {
@@ -347,9 +443,10 @@ export default function EntriesTable({
               if (!bill) {
                 return <span className="text-xs text-muted-foreground">Unknown</span>
               }
+              const displayText = bill.status === "Draft" ? `${bill.period} [Draft]` : bill.period
               return (
                 <Link href={`/bills/${bill.id}`} className="text-primary hover:underline text-xs">
-                  {bill.period}
+                  {displayText}
                 </Link>
               )
             },
@@ -394,62 +491,10 @@ export default function EntriesTable({
           columnHelper.display({
             id: "actions",
             header: "",
-            size: 150,
+            size: 110,
             cell: (info) => {
-              const isInsufficientDetail = issueType === "insufficient-detail"
-
               return (
                 <div className="flex items-center gap-1">
-                  {isInsufficientDetail && info.row.original.actionLog ? (
-                    <TooltipProvider delayDuration={0}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0 hover:bg-pink-500/10 hover:text-pink-600 cursor-pointer"
-                            title="Action Log"
-                          >
-                            <Sparkles className="h-4 w-4 text-pink-600" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="left" className="max-w-md">
-                          <div className="space-y-2">
-                            <p className="font-semibold text-xs">Action Log</p>
-                            <div className="space-y-1.5">
-                              {info.row.original.actionLog.map((log, index) => {
-                                const logDate = new Date(log.timestamp).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric'
-                                })
-                                return (
-                                  <div key={index} className="text-xs text-muted-foreground grid grid-cols-[auto_auto_1fr_auto] gap-2 items-start">
-                                    <span className="font-medium">{logDate}</span>
-                                    <span className="text-primary font-medium">{log.actor}</span>
-                                    <span>{log.message}</span>
-                                    {log.undoable && (
-                                      <button
-                                        onClick={() => console.log('Undo action:', log.message)}
-                                        className="text-muted-foreground hover:text-foreground transition-colors"
-                                        title="Undo this action"
-                                      >
-                                        <Undo2 className="h-3 w-3" />
-                                      </button>
-                                    )}
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <div className="h-7 w-7 flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-gray-300" />
-                    </div>
-                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -507,11 +552,11 @@ export default function EntriesTable({
   const filteredRows = table.getFilteredRowModel().rows
   const stats = {
     count: filteredRows.length,
-    totalDuration: filteredRows.reduce((sum, row) => sum + row.original.duration, 0),
+    totalDuration: filteredRows.reduce((sum, row) => sum + row.original.duration, 0).toFixed(1),
     avgDuration:
       filteredRows.length > 0
         ? (filteredRows.reduce((sum, row) => sum + row.original.duration, 0) / filteredRows.length).toFixed(1)
-        : 0,
+        : "0.0",
   }
 
   const SortHeaderCell = ({ headerId, label }: { headerId: string; label: string }) => {
@@ -615,7 +660,7 @@ export default function EntriesTable({
           <thead className="sticky top-0 bg-card z-20">
             <tr className="border-b border-border">
               {table.getHeaderGroups()[0].headers.map((header) => {
-                if (header.id === "actions" || header.id === "bill" || header.id === "reviewStatus") {
+                if (header.id === "actions" || header.id === "bill" || header.id === "reviewStatus" || header.id === "status") {
                   return (
                     <th key={header.id} className="text-sm font-medium text-foreground py-3 px-4 text-left">
                       {header.column.columnDef.header as string}
@@ -637,7 +682,7 @@ export default function EntriesTable({
               <tr
                 key={row.id}
                 className={cn(
-                  "border-b border-border hover:bg-card/50 transition-colors",
+                  "hover:bg-card/50 transition-colors",
                   editingCell?.rowId === row.original.id && "bg-card/50"
                 )}
               >
@@ -653,14 +698,15 @@ export default function EntriesTable({
               </tr>
             ))}
           </tbody>
-          <tfoot className="sticky bottom-0 bg-card z-20">
-            <tr className="border-t-2 border-foreground">
+          <tfoot className="sticky bottom-0 bg-card z-20 border-t-2 border-foreground">
+            <tr>
+              <td className="px-4 py-3 text-sm" style={{ width: 80 }}></td>
               <td className="px-4 py-3 text-sm font-medium" style={{ width: 120 }}>
                 {stats.count} {stats.count === 1 ? "entry" : "entries"}
               </td>
               <td className="px-4 py-3 text-sm" style={{ width: 180 }}></td>
               <td className="px-4 py-3 text-sm font-medium" style={{ width: 100 }}>{stats.totalDuration}h total</td>
-              <td className="px-4 py-3 text-sm text-muted-foreground" colSpan={columns.length - 3}>Avg: {stats.avgDuration}h</td>
+              <td className="px-4 py-3 text-sm text-muted-foreground" colSpan={columns.length - 4}>Avg: {stats.avgDuration}h</td>
             </tr>
           </tfoot>
         </table>

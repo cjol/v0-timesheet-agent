@@ -15,6 +15,7 @@ export interface TimesheetEntry {
   suggestedTask?: string;
   actionLog?: ActionLogEntry[];
   billId?: string;
+  awaitingAction?: boolean;
 }
 
 export const mockTimesheetData: TimesheetEntry[] = [
@@ -27,11 +28,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Work on project",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Sarah Chen",
         timestamp: "2024-11-04",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -48,12 +50,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
       {
         message: "Email requesting clarification sent to Marcus Johnson.",
         timestamp: "2024-11-03",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
       {
         message: "Details received from Marcus Johnson, narrative re-drafted.",
         timestamp: "2024-11-03",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
         undoable: true,
       },
     ],
@@ -66,16 +68,17 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Development",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Emma Rodriguez",
         timestamp: "2024-11-02",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
       {
         message: "Follow-up reminder sent",
         timestamp: "2024-11-03",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -92,12 +95,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
       {
         message: "Email requesting clarification sent to Alex Thompson",
         timestamp: "2024-11-01",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
       {
         message: "AI-generated task description applied",
         timestamp: "2024-11-01",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
         undoable: true,
       },
     ],
@@ -110,11 +113,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Testing phase",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Jordan Lee",
         timestamp: "2024-10-31",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -126,11 +130,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "API work",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Casey Wong",
         timestamp: "2024-10-30",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -142,11 +147,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Design collaboration",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Morgan Smith",
         timestamp: "2024-10-29",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -158,11 +164,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Documentation update",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Riley Davis",
         timestamp: "2024-10-28",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -174,11 +181,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Client meeting prep",
     issue: "insufficient-detail",
     billId: "bill-001",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Taylor Brown",
         timestamp: "2024-10-27",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },
@@ -190,11 +198,12 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Infrastructure work",
     issue: "insufficient-detail",
     billId: "bill-002",
+    awaitingAction: true,
     actionLog: [
       {
         message: "Email requesting clarification sent to Harper Martin",
         timestamp: "2024-10-26",
-        actor: "FixMyTimeAgent",
+        actor: "FixMyTime Agent",
       },
     ],
   },

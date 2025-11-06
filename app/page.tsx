@@ -114,7 +114,7 @@ export default function HomePage() {
                   </Link>
                 ))}
               </div>
-              <div className="mt-4 text-center">
+              <div className="mt-4 text-right">
                 <Link href="/bills" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   View All
                 </Link>

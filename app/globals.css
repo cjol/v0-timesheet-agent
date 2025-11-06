@@ -10,7 +10,7 @@
   --card-foreground: oklch(0.15 0 0);
   --popover: hsl(0 0% 100%);
   --popover-foreground: oklch(0.15 0 0);
-  --primary: rgb(187, 3, 175);
+  --primary: rgb(0, 181, 166);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: hsl(210 40% 96%);
   --secondary-foreground: oklch(0.15 0 0);
@@ -22,12 +22,12 @@
   --destructive-foreground: oklch(0.98 0 0);
   --border: hsl(214.3 31.8% 91.4%);
   --input: hsl(214.3 31.8% 91.4%);
-  --ring: rgb(186, 4, 174);
-  --chart-1: rgb(186, 4, 174);
-  --chart-2: rgb(230, 65, 219);
-  --chart-3: rgb(126, 3, 118);
-  --chart-4: rgb(209, 143, 205);
-  --chart-5: rgb(235, 211, 233);
+  --ring: rgb(0, 181, 166);
+  --chart-1: rgb(0, 181, 166);
+  --chart-2: rgb(77, 213, 202);
+  --chart-3: rgb(0, 123, 113);
+  --chart-4: rgb(166, 225, 219);
+  --chart-5: rgb(217, 241, 238);
   --radius: 1.125rem;
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: oklch(0.15 0 0);
