@@ -37,6 +37,7 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "latest",
+    "@tanstack/react-query": "^5.90.7",
     "@tanstack/react-table": "latest",
     "@tiptap/core": "latest",
     "@tiptap/extension-color": "latest",

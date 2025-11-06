@@ -18,7 +18,8 @@ export interface TimesheetEntry {
   awaitingAction?: boolean;
 }
 
-export const mockTimesheetData: TimesheetEntry[] = [
+// Constant data - will be replaced with API calls later
+export const TIMESHEET_DATA: TimesheetEntry[] = [
   // Insufficient Detail
   {
     id: "1",
@@ -597,7 +598,7 @@ export function getDocumentReviewStatus(
   return "pending";
 }
 
-export const mockBillDocuments: BillDocument[] = [
+export const BILL_DOCUMENTS_DATA: BillDocument[] = [
   // Documents for bill-001 (October 2025 - Draft)
   {
     id: "doc-1-bill-001",
@@ -969,7 +970,7 @@ export const mockBillDocuments: BillDocument[] = [
   },
 ];
 
-export const mockBills: Bill[] = [
+export const BILLS_DATA: Bill[] = [
   {
     id: "bill-001",
     matter: "Project Blackstone",
@@ -1018,7 +1019,7 @@ export interface ContextDocument {
   url: string;
 }
 
-export const mockTimekeepers: Timekeeper[] = [
+export const TIMEKEEPERS_DATA: Timekeeper[] = [
   {
     id: "tk-1",
     name: "Sarah Chen",
@@ -1042,19 +1043,19 @@ export const mockTimekeepers: Timekeeper[] = [
   },
 ];
 
-export const mockOtherParticipants: OtherParticipant[] = [
+export const OTHER_PARTICIPANTS_DATA: OtherParticipant[] = [
   { id: "op-1", name: "John Smith", role: "Client Contact" },
   { id: "op-2", name: "Linda Garcia", role: "Project Manager" },
   { id: "op-3", name: "David Chen", role: "Technical Lead" },
 ];
 
-export const mockContextDocuments: ContextDocument[] = [
+export const CONTEXT_DOCUMENTS_DATA: ContextDocument[] = [
   { id: "cd-1", title: "Client Billing Guidelines", url: "#" },
   { id: "cd-2", title: "Project Scope Document", url: "#" },
   { id: "cd-3", title: "Rate Card 2025", url: "#" },
 ];
 
-export const mockMatterContext = {
+export const MATTER_CONTEXT_DATA = {
   id: "matter-001",
   name: "Project Blackstone",
   description:
@@ -1086,7 +1087,7 @@ export interface AutomationStep {
   code: string;
 }
 
-export const mockAutomationRules: AutomationRule[] = [
+export const AUTOMATION_RULES_DATA: AutomationRule[] = [
   {
     id: "rule-1",
     title: "Insufficient Detail",
@@ -1243,7 +1244,7 @@ sendReviewRequest(entry, {
 // ============================================================================
 
 // Matter list for navigation dropdown
-export const mockMatters = [
+export const MATTERS_DATA = [
   { id: "matter-001", name: "Project Blackstone" },
   { id: "matter-002", name: "Anderson Corp Litigation" },
   { id: "matter-003", name: "Smith Estate Planning" },
@@ -1251,7 +1252,7 @@ export const mockMatters = [
 ];
 
 // Default email templates for review requests
-export const defaultReviewEmailTemplate = 
+export const DEFAULT_REVIEW_EMAIL_TEMPLATE = 
   "<p>Dear Reviewer,</p><p><br></p><p>Please review the attached documents for this billing period.</p><p><br></p><p>Kind regards</p>";
 
 // Issue section configuration - maps to automation rules
@@ -1261,7 +1262,7 @@ export interface IssueSectionConfig {
   description: string;
 }
 
-export const issueSectionConfigs: IssueSectionConfig[] = [
+export const ISSUE_SECTION_CONFIGS_DATA: IssueSectionConfig[] = [
   {
     id: "insufficient-detail",
     title: "Insufficient Detail",
@@ -1286,11 +1287,11 @@ export const issueSectionConfigs: IssueSectionConfig[] = [
 
 // Helper function to get issue section config by ID
 export function getIssueSectionConfig(issueId: string): IssueSectionConfig | undefined {
-  return issueSectionConfigs.find(config => config.id === issueId);
+  return ISSUE_SECTION_CONFIGS_DATA.find(config => config.id === issueId);
 }
 
 // Helper function to get all issue sections for a matter (could be matter-specific in future)
 export function getIssueSectionsForMatter(matterId: string): IssueSectionConfig[] {
   // For now, return all sections. In the future, this could filter based on matter configuration
-  return issueSectionConfigs;
+  return ISSUE_SECTION_CONFIGS_DATA;
 }

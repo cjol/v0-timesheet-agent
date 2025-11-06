@@ -1,10 +1,11 @@
 "use client"
 import EntriesTable from "@/components/entries-table"
-import { mockTimesheetData } from "@/lib/mock-data"
+import { useTimesheetData } from "@/lib/hooks"
 import { useMatter } from "@/contexts/matter-context"
 
 export default function TimeEntriesPage() {
   const { currentMatterName } = useMatter()
+  const { data: mockTimesheetData = [] } = useTimesheetData()
   
   return (
     <main className="min-h-screen bg-background text-foreground">

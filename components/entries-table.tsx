@@ -4,7 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react"
 import { ChevronUp, ChevronDown, Filter, Check, ChevronsUpDown, CheckCircle, XCircle, Eye, Sparkles, Undo2, Lock, Clock } from "lucide-react"
 import { diff_match_patch, DIFF_DELETE, DIFF_INSERT } from "diff-match-patch"
 import Link from "next/link"
-import { mockBills } from "@/lib/mock-data"
+import { useBills } from "@/lib/hooks"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -114,6 +114,7 @@ export default function EntriesTable({
   showReviewStatusColumn = false,
   showActionsColumn = true
 }: EntriesTableProps) {
+  const { data: mockBills = [] } = useBills()
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [activeFilterColumn, setActiveFilterColumn] = useState<string | null>(null)
