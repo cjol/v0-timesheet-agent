@@ -1,35 +1,22 @@
 "use client"
-import { useState, useEffect } from "react"
-import RulesSidebar from "@/components/rules-sidebar"
+import { useState } from "react"
 import CodePopover from "@/components/code-popover"
 import { mockAutomationRules } from "@/lib/mock-data"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 export default function RulesPage() {
-  const [activeRuleId, setActiveRuleId] = useState("rule-1")
+  const [openReferences, setOpenReferences] = useState<Record<string, boolean>>({})
 
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1)
-      if (hash) {
-        setActiveRuleId(hash)
-      }
-    }
-
-    window.addEventListener("hashchange", handleHashChange)
-    handleHashChange()
-
-    return () => window.removeEventListener("hashchange", handleHashChange)
-  }, [])
+  const toggleReferences = (ruleId: string) => {
+    setOpenReferences(prev => ({
+      ...prev,
+      [ruleId]: !prev[ruleId]
+    }))
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="flex h-screen">
-        {/* Sidebar */}
-        <RulesSidebar rules={mockAutomationRules} activeRuleId={activeRuleId} />
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-8 py-12">
+      <div className="max-w-4xl mx-auto px-8 py-12">
             {/* Header */}
             <div className="mb-12">
               <h1 className="text-3xl font-bold mb-2">Automation Rules</h1>
@@ -55,50 +42,82 @@ export default function RulesPage() {
                   {/* References */}
                   {rule.references.length > 0 && (
                     <div className="mb-6 p-4 bg-muted/30 rounded-lg">
-                      <h3 className="text-sm font-semibold mb-2">References</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {rule.references.map((ref, idx) => (
-                          <a key={idx} href="/settings" className="text-sm text-primary hover:underline">
-                            {ref}
-                          </a>
-                        ))}
-                      </div>
+                      <button
+                        onClick={() => toggleReferences(rule.id)}
+                        className="flex items-center gap-2 w-full text-left hover:opacity-80 transition-opacity"
+                      >
+                        {openReferences[rule.id] ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                        <h3 className="text-sm font-semibold">
+                          References ({rule.references.length})
+                        </h3>
+                      </button>
+                      {openReferences[rule.id] && (
+                        <div className="space-y-3 mt-3">
+                          {rule.references.map((ref, idx) => (
+                            <div key={idx} className="border-l-2 border-primary/30 pl-3">
+                              <a href="/settings" className="text-sm font-medium text-primary hover:underline">
+                                {ref.title}
+                              </a>
+                              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                                "{ref.excerpt}"
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* Automation Steps */}
+                  {/* Automation Steps - Timeline Style */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-foreground">Automation Steps</h3>
-                    {rule.steps.map((step, idx) => (
-                      <div
-                        key={idx}
-                        className="flex gap-4 p-4 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
-                      >
-                        {/* Step Number */}
-                        <div className="flex-shrink-0">
-                          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
-                            {step.number}
+                    <h3 className="text-sm font-semibold text-foreground mb-6">Automation Steps</h3>
+                    <div className="relative">
+                      {/* Timeline vertical line */}
+                      <div className="absolute left-2 top-4 bottom-0 w-[1px] bg-border" />
+
+{rule.steps.map((step, idx) => {
+                        // Check if this is a nested step (contains letter like 1a, 1b, 2a, etc.)
+                        const isNested = /^\d+[a-z]/.test(step.number);
+                        const leftOffset = isNested ? "pl-16" : "pl-8";
+                        const timelineDotLeft = isNested ? "left-8" : "left-0";
+
+                        return (
+                          <div key={idx} className={`relative mb-6 last:mb-0 ${leftOffset}`}>
+                            {/* Curved line connector for nested steps */}
+                            {isNested && (
+                              <div
+                                className="absolute border-l border-b border-border rounded-bl-lg"
+                                style={{
+                                  left: '0.5rem',
+                                  top: '-1.5rem',
+                                  width: '2rem',
+                                  height: '2rem'
+                                }}
+                              />
+                            )}
+
+                            {/* Timeline dot */}
+                            <div className={`absolute ${timelineDotLeft} top-0.5 flex size-4 items-center justify-center rounded-full bg-foreground`} />
+
+                            {/* Step Title with Number */}
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-base font-semibold tracking-tight">
+                                {step.number}. {step.description}
+                              </h4>
+                              <CodePopover code={step.code} stepNumber={step.number} />
+                            </div>
                           </div>
-                        </div>
-
-                        {/* Step Content */}
-                        <div className="flex-1">
-                          <p className="text-sm font-medium mb-1">{step.description}</p>
-                          <p className="text-xs text-muted-foreground">Implementation logic for this automation step</p>
-                        </div>
-
-                        {/* Code Icon */}
-                        <div className="flex-shrink-0">
-                          <CodePopover code={step.code} stepNumber={step.number} />
-                        </div>
-                      </div>
-                    ))}
+                        );
+                      })}
+                    </div>
                   </div>
                 </section>
-              ))}
+                ))}
             </div>
-          </div>
-        </div>
       </div>
     </main>
   )

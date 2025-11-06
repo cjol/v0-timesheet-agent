@@ -505,49 +505,467 @@ export interface Bill {
   issues: number;
 }
 
+export interface DocumentReviewer {
+  name: string;
+  role: string;
+  status: "pending" | "approved" | "changes-required";
+  feedback?: string;
+}
+
+export interface ReviewHistoryEvent {
+  id: string;
+  type: "requested" | "approved" | "changes-required" | "comment";
+  timestamp: string;
+  actor: string;
+  role: string;
+  comment?: string;
+  reviewerName?: string; // For "requested" events: the person being asked to review
+  reviewerRole?: string; // For "requested" events: the role of the person being asked to review
+}
+
 export interface BillDocument {
   id: string;
+  billId: string;
   title: string;
   type: string;
-  reviewStatus: "no-review" | "pending" | "approved" | "changes-required";
-  reviewers?: string[];
-  feedback?: string;
   downloadUrl: string;
+  reviewHistory: ReviewHistoryEvent[];
+  htmlContent?: string; // For HTML documents that can be previewed
+}
+
+// Helper function to derive reviewer statuses from review history
+export function getDocumentReviewers(doc: BillDocument): DocumentReviewer[] {
+  const reviewerMap = new Map<string, DocumentReviewer>();
+
+  // First pass: identify all requested reviewers
+  doc.reviewHistory.forEach((event) => {
+    if (
+      event.type === "requested" &&
+      event.reviewerName &&
+      event.reviewerRole
+    ) {
+      if (!reviewerMap.has(event.reviewerName)) {
+        reviewerMap.set(event.reviewerName, {
+          name: event.reviewerName,
+          role: event.reviewerRole,
+          status: "pending",
+        });
+      }
+    }
+  });
+
+  // Second pass: update statuses based on responses
+  doc.reviewHistory.forEach((event) => {
+    if (event.type === "approved" || event.type === "changes-required") {
+      reviewerMap.set(event.actor, {
+        name: event.actor,
+        role: event.role,
+        status: event.type === "approved" ? "approved" : "changes-required",
+        feedback: event.comment,
+      });
+    }
+  });
+
+  return Array.from(reviewerMap.values());
+}
+
+// Helper function to get overall document review status
+export function getDocumentReviewStatus(
+  doc: BillDocument
+): "no-review" | "pending" | "approved" | "changes-required" {
+  if (doc.reviewHistory.length === 0) {
+    return "no-review";
+  }
+
+  const reviewers = getDocumentReviewers(doc);
+
+  if (reviewers.length === 0) {
+    return "no-review";
+  }
+
+  // If any reviewer requested changes, overall status is "changes-required"
+  if (reviewers.some((r) => r.status === "changes-required")) {
+    return "changes-required";
+  }
+
+  // If all reviewers approved, overall status is "approved"
+  if (reviewers.every((r) => r.status === "approved")) {
+    return "approved";
+  }
+
+  // Otherwise, it's pending
+  return "pending";
 }
 
 export const mockBillDocuments: BillDocument[] = [
+  // Documents for bill-001 (October 2025 - Draft)
   {
-    id: "doc-1",
-    title: "Cover Letter",
-    type: "PDF",
-    reviewStatus: "approved",
-    reviewers: ["John Smith"],
+    id: "doc-1-bill-001",
+    billId: "bill-001",
+    title: "Cover Email",
+    type: "HTML",
     downloadUrl: "#",
+    htmlContent: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #333;">Project Blackstone - October 2025 Billing</h2>
+        <p>Dear John,</p>
+        <p>Please find attached our billing summary for October 2025 related to Project Blackstone.</p>
+        <p>This month's work focused on:</p>
+        <ul>
+          <li>Development and implementation of the analytics dashboard</li>
+          <li>Security enhancements and compliance reviews</li>
+          <li>Client consultation sessions</li>
+          <li>Technical documentation updates</li>
+        </ul>
+        <p>The total amount for this period is <strong>£12,450</strong>, covering 40 time entries from our team.</p>
+        <p>Should you have any questions regarding the enclosed documentation, please don't hesitate to reach out.</p>
+        <p>Best regards,<br/>Sarah Chen<br/>Senior Associate</p>
+      </div>
+    `,
+    reviewHistory: [
+      {
+        id: "h-1",
+        type: "requested",
+        timestamp: "2024-11-01T09:00:00Z",
+        actor: "Sarah Chen",
+        role: "Senior Associate",
+        reviewerName: "John Smith",
+        reviewerRole: "Client Contact",
+      },
+      {
+        id: "h-1b",
+        type: "requested",
+        timestamp: "2024-11-01T09:00:00Z",
+        actor: "Sarah Chen",
+        role: "Senior Associate",
+        reviewerName: "Linda Graves",
+        reviewerRole: "Project Manager",
+      },
+      {
+        id: "h-2",
+        type: "approved",
+        timestamp: "2024-11-01T14:30:00Z",
+        actor: "Linda Graves",
+        role: "Project Manager",
+        comment: "Looks good, approved.",
+      },
+      {
+        id: "h-3",
+        type: "approved",
+        timestamp: "2024-11-02T10:15:00Z",
+        actor: "John Smith",
+        role: "Client Contact",
+        comment: "All set from my end.",
+      },
+    ],
   },
   {
-    id: "doc-2",
+    id: "doc-2-bill-001",
+    billId: "bill-001",
     title: "Billing Summary",
     type: "Spreadsheet",
-    reviewStatus: "pending",
-    reviewers: ["Linda Garcia", "David Chen"],
     downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-4",
+        type: "requested",
+        timestamp: "2024-11-02T11:00:00Z",
+        actor: "Sarah Chen",
+        role: "Senior Associate",
+        reviewerName: "John Smith",
+        reviewerRole: "Client Contact",
+      },
+      {
+        id: "h-4b",
+        type: "requested",
+        timestamp: "2024-11-02T11:00:00Z",
+        actor: "Sarah Chen",
+        role: "Senior Associate",
+        reviewerName: "Linda Graves",
+        reviewerRole: "Project Manager",
+      },
+      {
+        id: "h-4c",
+        type: "requested",
+        timestamp: "2024-11-02T11:00:00Z",
+        actor: "Sarah Chen",
+        role: "Senior Associate",
+        reviewerName: "Amanda White",
+        reviewerRole: "Finance Director",
+      },
+      {
+        id: "h-4d",
+        type: "requested",
+        timestamp: "2024-11-02T11:00:00Z",
+        actor: "Sarah Chen",
+        role: "Senior Associate",
+        reviewerName: "Nicole Thompson",
+        reviewerRole: "Senior Partner",
+      },
+      {
+        id: "h-5",
+        type: "approved",
+        timestamp: "2024-11-03T09:45:00Z",
+        actor: "Amanda White",
+        role: "Finance Director",
+        comment: "Financial figures check out perfectly.",
+      },
+      {
+        id: "h-6",
+        type: "changes-required",
+        timestamp: "2024-11-03T16:20:00Z",
+        actor: "Nicole Thompson",
+        role: "Senior Partner",
+        comment: "Please break down the consulting fees more clearly.",
+      },
+    ],
   },
   {
-    id: "doc-3",
+    id: "doc-3-bill-001",
+    billId: "bill-001",
     title: "Detailed Time Report",
     type: "PDF",
-    reviewStatus: "changes-required",
-    reviewers: ["John Smith"],
-    feedback:
-      "Please clarify the hours logged for administrative work. Some entries appear to lack detail.",
     downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-7",
+        type: "requested",
+        timestamp: "2024-11-03T08:30:00Z",
+        actor: "Marcus Johnson",
+        role: "Associate",
+        reviewerName: "John Smith",
+        reviewerRole: "Client Contact",
+      },
+      {
+        id: "h-8",
+        type: "comment",
+        timestamp: "2024-11-03T15:00:00Z",
+        actor: "John Smith",
+        role: "Client Contact",
+        comment: "I'm reviewing this now, should have feedback by end of day.",
+      },
+      {
+        id: "h-9",
+        type: "changes-required",
+        timestamp: "2024-11-04T11:30:00Z",
+        actor: "John Smith",
+        role: "Client Contact",
+        comment:
+          "Please clarify the hours logged for administrative work. Some entries appear to lack detail.",
+      },
+    ],
   },
   {
-    id: "doc-4",
+    id: "doc-4-bill-001",
+    billId: "bill-001",
     title: "Expense Report",
     type: "Spreadsheet",
-    reviewStatus: "no-review",
     downloadUrl: "#",
+    reviewHistory: [],
+  },
+
+  // Documents for bill-002 (September 2025 - Past)
+  {
+    id: "doc-1-bill-002",
+    billId: "bill-002",
+    title: "Cover Email",
+    type: "HTML",
+    downloadUrl: "#",
+    htmlContent: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #333;">Project Blackstone - September 2025 Billing</h2>
+        <p>Dear Emily,</p>
+        <p>Please find attached our billing summary for September 2025 related to Project Blackstone.</p>
+        <p>The total amount for this period is <strong>£10,200</strong>, covering 35 time entries from our team.</p>
+        <p>Best regards,<br/>Marcus Johnson<br/>Associate</p>
+      </div>
+    `,
+    reviewHistory: [
+      {
+        id: "h-10",
+        type: "requested",
+        timestamp: "2024-10-01T09:00:00Z",
+        actor: "Marcus Johnson",
+        role: "Associate",
+        reviewerName: "Emily Carter",
+        reviewerRole: "Client Director",
+      },
+      {
+        id: "h-11",
+        type: "approved",
+        timestamp: "2024-10-01T15:30:00Z",
+        actor: "Emily Carter",
+        role: "Client Director",
+        comment: "Approved for September billing.",
+      },
+    ],
+  },
+  {
+    id: "doc-2-bill-002",
+    billId: "bill-002",
+    title: "Billing Summary",
+    type: "Spreadsheet",
+    downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-12",
+        type: "requested",
+        timestamp: "2024-10-01T10:00:00Z",
+        actor: "Marcus Johnson",
+        role: "Associate",
+        reviewerName: "Emily Carter",
+        reviewerRole: "Client Director",
+      },
+      {
+        id: "h-13",
+        type: "approved",
+        timestamp: "2024-10-02T09:00:00Z",
+        actor: "Emily Carter",
+        role: "Client Director",
+        comment: "Numbers look correct.",
+      },
+    ],
+  },
+  {
+    id: "doc-3-bill-002",
+    billId: "bill-002",
+    title: "Detailed Time Report",
+    type: "PDF",
+    downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-14",
+        type: "requested",
+        timestamp: "2024-10-01T11:00:00Z",
+        actor: "Marcus Johnson",
+        role: "Associate",
+        reviewerName: "Emily Carter",
+        reviewerRole: "Client Director",
+      },
+      {
+        id: "h-15",
+        type: "approved",
+        timestamp: "2024-10-02T10:30:00Z",
+        actor: "Emily Carter",
+        role: "Client Director",
+        comment: "Time entries are well documented.",
+      },
+    ],
+  },
+
+  // Documents for bill-003 (August 2025 - Past)
+  {
+    id: "doc-1-bill-003",
+    billId: "bill-003",
+    title: "Cover Email",
+    type: "HTML",
+    downloadUrl: "#",
+    htmlContent: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #333;">Project Blackstone - August 2025 Billing</h2>
+        <p>Dear Michael,</p>
+        <p>Please find attached our billing summary for August 2025 related to Project Blackstone.</p>
+        <p>The total amount for this period is <strong>£9,800</strong>, covering 32 time entries from our team.</p>
+        <p>Best regards,<br/>Emma Rodriguez<br/>Partner</p>
+      </div>
+    `,
+    reviewHistory: [
+      {
+        id: "h-16",
+        type: "requested",
+        timestamp: "2024-09-01T09:00:00Z",
+        actor: "Emma Rodriguez",
+        role: "Partner",
+        reviewerName: "Michael Brown",
+        reviewerRole: "Finance Manager",
+      },
+      {
+        id: "h-17",
+        type: "approved",
+        timestamp: "2024-09-01T16:00:00Z",
+        actor: "Michael Brown",
+        role: "Finance Manager",
+        comment: "Approved for August billing period.",
+      },
+    ],
+  },
+  {
+    id: "doc-2-bill-003",
+    billId: "bill-003",
+    title: "Billing Summary",
+    type: "Spreadsheet",
+    downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-18",
+        type: "requested",
+        timestamp: "2024-09-01T10:00:00Z",
+        actor: "Emma Rodriguez",
+        role: "Partner",
+        reviewerName: "Michael Brown",
+        reviewerRole: "Finance Manager",
+      },
+      {
+        id: "h-19",
+        type: "approved",
+        timestamp: "2024-09-02T08:45:00Z",
+        actor: "Michael Brown",
+        role: "Finance Manager",
+        comment: "Financial summary approved.",
+      },
+    ],
+  },
+  {
+    id: "doc-3-bill-003",
+    billId: "bill-003",
+    title: "Detailed Time Report",
+    type: "PDF",
+    downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-20",
+        type: "requested",
+        timestamp: "2024-09-01T11:00:00Z",
+        actor: "Emma Rodriguez",
+        role: "Partner",
+        reviewerName: "Michael Brown",
+        reviewerRole: "Finance Manager",
+      },
+      {
+        id: "h-21",
+        type: "approved",
+        timestamp: "2024-09-02T11:15:00Z",
+        actor: "Michael Brown",
+        role: "Finance Manager",
+        comment: "Time report reviewed and approved.",
+      },
+    ],
+  },
+  {
+    id: "doc-4-bill-003",
+    billId: "bill-003",
+    title: "Expense Report",
+    type: "Spreadsheet",
+    downloadUrl: "#",
+    reviewHistory: [
+      {
+        id: "h-22",
+        type: "requested",
+        timestamp: "2024-09-01T12:00:00Z",
+        actor: "Emma Rodriguez",
+        role: "Partner",
+        reviewerName: "Michael Brown",
+        reviewerRole: "Finance Manager",
+      },
+      {
+        id: "h-23",
+        type: "approved",
+        timestamp: "2024-09-02T14:00:00Z",
+        actor: "Michael Brown",
+        role: "Finance Manager",
+        comment: "All expenses properly documented.",
+      },
+    ],
   },
 ];
 
@@ -649,11 +1067,16 @@ export const mockMatterContext = {
   ],
 };
 
+export interface AutomationReference {
+  title: string;
+  excerpt: string;
+}
+
 export interface AutomationRule {
   id: string;
   title: string;
   description: string;
-  references: string[];
+  references: AutomationReference[];
   steps: AutomationStep[];
 }
 
@@ -669,7 +1092,16 @@ export const mockAutomationRules: AutomationRule[] = [
     title: "Insufficient Detail",
     description:
       "Automatically detect and request clarification for entries lacking sufficient detail",
-    references: ["Client Billing Guidelines", "Matter Context"],
+    references: [
+      {
+        title: "Client Billing Guidelines",
+        excerpt: "All time entries must include specific details about the work performed, including the task objective, key activities undertaken, and any deliverables produced. Vague descriptions such as 'meetings' or 'work on project' are not acceptable."
+      },
+      {
+        title: "Matter Context",
+        excerpt: "Project Blackstone requires detailed time entries that clearly link to specific project deliverables and milestones. Each entry should reference the relevant component or feature being developed."
+      }
+    ],
     steps: [
       {
         number: "1",
@@ -723,7 +1155,16 @@ updateReviewStatus(entry, {
     title: "Poor Writing Style",
     description:
       "Identify and improve poorly formatted or unclear time entry descriptions",
-    references: ["Client Billing Guidelines", "Style Guide"],
+    references: [
+      {
+        title: "Client Billing Guidelines",
+        excerpt: "Time entries should be written in professional business language, free from colloquialisms, excessive capitalization, or informal abbreviations. Use proper grammar and punctuation throughout."
+      },
+      {
+        title: "Style Guide",
+        excerpt: "Maintain a consistent, professional tone across all billing narratives. Avoid first-person pronouns, use active voice, and ensure all technical terms are properly capitalized and spelled correctly."
+      }
+    ],
     steps: [
       {
         number: "1",
@@ -762,7 +1203,16 @@ sendNotification(entry.timekeeper, {
     id: "rule-3",
     title: "Unusual Duration",
     description: "Flag entries with atypical time durations for review",
-    references: ["Matter Context", "Billing Guidelines"],
+    references: [
+      {
+        title: "Matter Context",
+        excerpt: "Typical task durations for Project Blackstone range from 1-4 hours. Tasks requiring significantly more or less time should be reviewed to ensure accurate billing and appropriate task breakdown."
+      },
+      {
+        title: "Billing Guidelines",
+        excerpt: "Time entries must be recorded in 0.25 hour (15-minute) increments. Unusually short entries (less than 0.5 hours) or lengthy entries (more than 6 hours) require additional justification and review."
+      }
+    ],
     steps: [
       {
         number: "1",

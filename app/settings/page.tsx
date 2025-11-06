@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { Edit2, Save, X } from "lucide-react"
+import { Edit2, Save, X, Plus } from "lucide-react"
 import SettingsSection from "@/components/settings-section"
 import { mockMatterContext, mockTimekeepers, mockOtherParticipants, mockContextDocuments } from "@/lib/mock-data"
 
@@ -9,6 +9,9 @@ export default function SettingsPage() {
   const [contextDescription, setContextDescription] = useState(mockMatterContext.description)
   const [billingArrangements, setBillingArrangements] = useState(mockMatterContext.billingArrangements)
   const [newArrangement, setNewArrangement] = useState("")
+  const [contextDocuments, setContextDocuments] = useState(mockContextDocuments)
+  const [timekeepers, setTimekeepers] = useState(mockTimekeepers)
+  const [otherParticipants, setOtherParticipants] = useState(mockOtherParticipants)
 
   const handleAddArrangement = () => {
     if (newArrangement.trim()) {
@@ -92,9 +95,18 @@ export default function SettingsPage() {
 
           {/* Context Documents */}
           <div className="mt-8 pt-8 border-t border-border">
-            <h3 className="text-sm font-semibold mb-4">Context Documents</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold">Context Documents</h3>
+              <button
+                onClick={() => {/* TODO: Implement add document */}}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
             <div className="space-y-2">
-              {mockContextDocuments.map((doc) => (
+              {contextDocuments.map((doc) => (
                 <a
                   key={doc.id}
                   href={doc.url}
@@ -109,47 +121,65 @@ export default function SettingsPage() {
 
         {/* Timekeepers */}
         <SettingsSection title="Timekeepers" description="Team members who can log time on this matter">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-4 py-3 font-semibold">Name</th>
-                  <th className="text-left px-4 py-3 font-semibold">Role</th>
-                  <th className="text-left px-4 py-3 font-semibold">Billing Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockTimekeepers.map((tk) => (
-                  <tr key={tk.id} className="border-b border-border hover:bg-muted/30">
-                    <td className="px-4 py-3">{tk.name}</td>
-                    <td className="px-4 py-3">{tk.role}</td>
-                    <td className="px-4 py-3 font-medium">£{tk.billingRate}/hr</td>
+          <div className="space-y-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left px-4 py-3 font-semibold">Name</th>
+                    <th className="text-left px-4 py-3 font-semibold">Role</th>
+                    <th className="text-left px-4 py-3 font-semibold">Billing Rate</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {timekeepers.map((tk) => (
+                    <tr key={tk.id} className="border-b border-border hover:bg-muted/30">
+                      <td className="px-4 py-3">{tk.name}</td>
+                      <td className="px-4 py-3">{tk.role}</td>
+                      <td className="px-4 py-3 font-medium">£{tk.billingRate}/hr</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={() => {/* TODO: Implement add timekeeper */}}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
           </div>
         </SettingsSection>
 
         {/* Other Participants */}
         <SettingsSection title="Other Participants" description="Non-billing participants mentioned in time entries">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-4 py-3 font-semibold">Name</th>
-                  <th className="text-left px-4 py-3 font-semibold">Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockOtherParticipants.map((op) => (
-                  <tr key={op.id} className="border-b border-border hover:bg-muted/30">
-                    <td className="px-4 py-3">{op.name}</td>
-                    <td className="px-4 py-3">{op.role}</td>
+          <div className="space-y-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left px-4 py-3 font-semibold">Name</th>
+                    <th className="text-left px-4 py-3 font-semibold">Role</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {otherParticipants.map((op) => (
+                    <tr key={op.id} className="border-b border-border hover:bg-muted/30">
+                      <td className="px-4 py-3">{op.name}</td>
+                      <td className="px-4 py-3">{op.role}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={() => {/* TODO: Implement add participant */}}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
           </div>
         </SettingsSection>
 
