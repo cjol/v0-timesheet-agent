@@ -1,11 +1,14 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { CheckCircle, XCircle } from "lucide-react"
+import { ArrowRight, Plus } from "lucide-react"
+import Link from "next/link"
 import IssueSection from "@/components/issue-section"
 import TableOfContents from "@/components/table-of-contents"
+import StatTile from "@/components/stat-tile"
 import { mockTimesheetData } from "@/lib/mock-data"
+import { mockBills } from "@/lib/mock-data"
 
-export default function ReviewPage() {
+export default function HomePage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [selectedMatter, setSelectedMatter] = useState("Project Blackstone")
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -25,26 +28,45 @@ export default function ReviewPage() {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [isDropdownOpen])
+
+  // Calculate statistics for current matter
+  const billedHours =
+    mockTimesheetData.filter((e) => !["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
+    1.5 // Mock calculation
+  const unbilledHours =
+    mockTimesheetData.filter((e) => ["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
+    1.5
+
+  const timekeepers = new Set(mockTimesheetData.map((e) => e.timekeeper))
+  const avgHoursPerTimekeeper = (billedHours + unbilledHours) / timekeepers.size
+
+  const adminHours =
+    mockTimesheetData.filter((e) => e.task.toLowerCase().includes("admin") || e.task.toLowerCase().includes("meeting"))
+      .length * 0.5
+
+  const draftBills = mockBills.filter((b) => b.status === "Draft")
+  const pastBills = mockBills.filter((b) => b.status === "Past")
+
   const sections = [
     {
       id: "insufficient-detail",
       title: "Insufficient Detail",
-      count: mockTimesheetData.filter((entry) => entry.issue === "insufficient-detail").length
+      count: mockTimesheetData.filter((entry) => entry.issue === "insufficient-detail").length,
     },
     {
       id: "poor-writing",
       title: "Poor Writing Style",
-      count: mockTimesheetData.filter((entry) => entry.issue === "poor-writing").length
+      count: mockTimesheetData.filter((entry) => entry.issue === "poor-writing").length,
     },
     {
       id: "unusual-duration",
       title: "Unusual Duration",
-      count: mockTimesheetData.filter((entry) => entry.issue === "unusual-duration").length
+      count: mockTimesheetData.filter((entry) => entry.issue === "unusual-duration").length,
     },
     {
       id: "missing-info",
       title: "Missing Information",
-      count: mockTimesheetData.filter((entry) => entry.issue === "missing-info").length
+      count: mockTimesheetData.filter((entry) => entry.issue === "missing-info").length,
     },
   ]
 
@@ -60,21 +82,36 @@ export default function ReviewPage() {
             {/* Navigation */}
             <nav className="flex items-center gap-8">
               {/* Nav Items */}
-              <a href="#" className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors">
+              <Link
+                href="#"
+                className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors"
+              >
                 Time
-              </a>
-              <a href="#" className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors">
+              </Link>
+              <Link
+                href="#"
+                className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors"
+              >
                 Bills
-              </a>
-              <a href="#" className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors">
+              </Link>
+              <Link
+                href="#"
+                className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors"
+              >
                 Rules
-              </a>
-              <a href="#" className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors">
+              </Link>
+              <Link
+                href="#"
+                className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors"
+              >
                 Reporting
-              </a>
-              <a href="#" className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors">
+              </Link>
+              <Link
+                href="#"
+                className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors"
+              >
                 Settings
-              </a>
+              </Link>
 
               {/* Vertical Divider */}
               <div className="h-6 w-px bg-border" />
@@ -158,59 +195,169 @@ export default function ReviewPage() {
       {/* Main content - document-like layout */}
       <div className="max-w-6xl mx-auto px-8 py-12">
         {/* Page Header */}
-        <div className="mb-12" id="page-intro">
-          {/* Breadcrumb */}
-          <nav className="mb-6">
-            <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Draft Bills
-                </a>
-              </li>
-              <li>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  October 2025
-                </a>
-              </li>
-              <li>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </li>
-              <li className="text-foreground font-medium">
-                Entries for Review
-              </li>
-            </ol>
-          </nav>
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold mb-2">Project Blackstone</h1>
+          <p className="text-muted-foreground">Matter overview and billing management</p>
+        </div>
 
-          {/* Title */}
-          <h1 className="text-3xl font-bold mb-4">Entries for Review</h1>
+        {/* Statistics Tiles */}
+        <div className="mb-12">
+          <h2 className="text-lg font-semibold mb-4">Time Entry Summary</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <StatTile
+              label="Billed Hours"
+              value={billedHours.toFixed(1)}
+              detail="Hours ready to invoice"
+              href="/time-entries"
+            />
+            <StatTile
+              label="Unbilled Hours"
+              value={unbilledHours.toFixed(1)}
+              detail="Hours pending review"
+              href="/entries-for-review"
+            />
+            <StatTile
+              label="Fee Earners"
+              value={timekeepers.size.toString()}
+              detail={`${avgHoursPerTimekeeper.toFixed(1)} hours avg`}
+            />
+          </div>
+          <div className="mt-4">
+            <StatTile
+              label="Admin Hours in Current Period"
+              value={adminHours.toFixed(1)}
+              detail="Hours for administrative tasks"
+            />
+          </div>
+        </div>
 
-          {/* Summary */}
-          <p className="text-base text-muted-foreground leading-relaxed max-w-3xl">
-            <span className="font-semibold text-foreground">40 entries</span> from this bill have been flagged for your review.{" "}
-{/* </p>
-          <p className="text-base text-muted-foreground leading-relaxed max-w-3xl"> */}
-            <span className="font-semibold text-foreground">15</span> have suggestions for you to approve.</p>
+        {/* Upload Section */}
+        <div className="mb-12">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
+            <Plus className="w-4 h-4" />
+            Upload Time Entries
+          </button>
+        </div>
 
-          <p className="text-base text-muted-foreground leading-relaxed max-w-3xl mt-2">
-You can{" "}
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-sm font-normal border border-border bg-background">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Approve
-            </span>{" "}
-            any item to remove the flag, or{" "}
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-sm font-normal border border-border bg-background">
-              <XCircle className="h-3.5 w-3.5" />
-              Exclude
-            </span>{" "}
-            the item from the current bill.
-          </p>
+        {/* Bills Section */}
+        <div className="space-y-8">
+          {/* Draft Bills */}
+          {draftBills.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Draft Bills</h2>
+              <div className="space-y-3">
+                {draftBills.map((bill) => (
+                  <Link
+                    key={bill.id}
+                    href={`/bills/${bill.id}`}
+                    className="flex items-center justify-between p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">{bill.period}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {bill.entries} entries {bill.issues > 0 && `• ${bill.issues} issues`}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">${bill.amount.toLocaleString()}</p>
+                    </div>
+                    <div className="ml-4 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+                      {bill.status}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Past Bills */}
+          {pastBills.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Past Bills</h2>
+              <div className="space-y-3">
+                {pastBills.map((bill) => (
+                  <Link
+                    key={bill.id}
+                    href={`/bills/${bill.id}`}
+                    className="flex items-center justify-between p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">{bill.period}</h3>
+                      <p className="text-sm text-muted-foreground">{bill.entries} entries</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">${bill.amount.toLocaleString()}</p>
+                    </div>
+                    <div className="ml-4 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+                      {bill.status}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-6 mb-12">
+          <Link
+            href="/bills"
+            className="flex items-center justify-between p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div>
+              <h3 className="font-semibold mb-1">View Bills</h3>
+              <p className="text-sm text-muted-foreground">Review and manage bills</p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-muted-foreground" />
+          </Link>
+
+          <Link
+            href="/time-entries"
+            className="flex items-center justify-between p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div>
+              <h3 className="font-semibold mb-1">Time Entries</h3>
+              <p className="text-sm text-muted-foreground">View all timesheet entries</p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-muted-foreground" />
+          </Link>
+        </div>
+
+        {/* Most Recent Bills */}
+        <div>
+          <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Recent Activity</h2>
+          <div className="space-y-3">
+            <Link
+              href="/bills/bill-001"
+              className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              <div>
+                <h4 className="font-medium">October 2025 - Project Blackstone</h4>
+                <p className="text-sm text-muted-foreground">40 entries • Draft</p>
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">$12,450</span>
+            </Link>
+            <Link
+              href="/bills/bill-002"
+              className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              <div>
+                <h4 className="font-medium">September 2025 - Anderson Corp</h4>
+                <p className="text-sm text-muted-foreground">28 entries • Draft</p>
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">$8,900</span>
+            </Link>
+            <Link
+              href="/bills/bill-003"
+              className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              <div>
+                <h4 className="font-medium">August 2025 - Smith Estate</h4>
+                <p className="text-sm text-muted-foreground">15 entries • Draft</p>
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">$4,200</span>
+            </Link>
+          </div>
         </div>
 
         {/* Table of Contents */}

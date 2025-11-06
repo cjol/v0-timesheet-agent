@@ -1,19 +1,19 @@
 export interface ActionLogEntry {
-  message: string;
-  timestamp: string;
-  actor: string;
-  undoable?: boolean;
+  message: string
+  timestamp: string
+  actor: string
+  undoable?: boolean
 }
 
 export interface TimesheetEntry {
-  id: string;
-  date: string;
-  timekeeper: string;
-  duration: number;
-  task: string;
-  issue: string;
-  suggestedTask?: string;
-  actionLog?: ActionLogEntry[];
+  id: string
+  date: string
+  timekeeper: string
+  duration: number
+  task: string
+  issue: string
+  suggestedTask?: string
+  actionLog?: ActionLogEntry[]
 }
 
 export const mockTimesheetData: TimesheetEntry[] = [
@@ -241,7 +241,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.25,
     task: "doing the update thing",
     issue: "poor-writing",
-    suggestedTask: "Updated dependencies and security patches",
+    suggestedTask: "Refined search algorithm and filters",
   },
   {
     id: "24",
@@ -259,7 +259,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.75,
     task: "stuff and things",
     issue: "poor-writing",
-    suggestedTask: "Refined search algorithm and filters",
+    suggestedTask: "Built notification system components",
   },
   {
     id: "26",
@@ -277,7 +277,7 @@ export const mockTimesheetData: TimesheetEntry[] = [
     duration: 1.5,
     task: "thing thing thing",
     issue: "poor-writing",
-    suggestedTask: "Built notification system components",
+    suggestedTask: "Fixed authentication bug",
   },
 
   // Unusual Duration
@@ -443,4 +443,296 @@ export const mockTimesheetData: TimesheetEntry[] = [
     task: "Resource allocation",
     issue: "missing-info",
   },
-];
+]
+
+export interface Bill {
+  id: string
+  matter: string
+  period: string
+  status: "Draft" | "Past"
+  amount: number
+  entries: number
+  issues: number
+}
+
+export interface BillDocument {
+  id: string
+  title: string
+  type: string
+  reviewStatus: "no-review" | "pending" | "approved" | "changes-required"
+  reviewers?: string[]
+  feedback?: string
+  downloadUrl: string
+}
+
+export interface BillDetail extends Bill {
+  documents: BillDocument[]
+  entries: TimesheetEntry[]
+}
+
+export const mockBillDocuments: BillDocument[] = [
+  {
+    id: "doc-1",
+    title: "Cover Letter",
+    type: "PDF",
+    reviewStatus: "approved",
+    reviewers: ["John Smith"],
+    downloadUrl: "#",
+  },
+  {
+    id: "doc-2",
+    title: "Billing Summary",
+    type: "Spreadsheet",
+    reviewStatus: "pending",
+    reviewers: ["Linda Garcia", "David Chen"],
+    downloadUrl: "#",
+  },
+  {
+    id: "doc-3",
+    title: "Detailed Time Report",
+    type: "PDF",
+    reviewStatus: "changes-required",
+    reviewers: ["John Smith"],
+    feedback: "Please clarify the hours logged for administrative work. Some entries appear to lack detail.",
+    downloadUrl: "#",
+  },
+  {
+    id: "doc-4",
+    title: "Expense Report",
+    type: "Spreadsheet",
+    reviewStatus: "no-review",
+    downloadUrl: "#",
+  },
+]
+
+// Extended mockBills with document data
+export const mockBillDetail: BillDetail = {
+  id: "bill-001",
+  matter: "Project Blackstone",
+  period: "October 2025",
+  status: "Draft",
+  amount: 12450,
+  entries: 40,
+  issues: 15,
+  documents: mockBillDocuments,
+}
+
+export const mockBills: Bill[] = [
+  {
+    id: "bill-001",
+    matter: "Project Blackstone",
+    period: "October 2025",
+    status: "Draft",
+    amount: 12450,
+    entries: 40,
+    issues: 15,
+  },
+  {
+    id: "bill-002",
+    matter: "Project Blackstone",
+    period: "September 2025",
+    status: "Past",
+    amount: 10200,
+    entries: 35,
+    issues: 0,
+  },
+  {
+    id: "bill-003",
+    matter: "Project Blackstone",
+    period: "August 2025",
+    status: "Past",
+    amount: 9800,
+    entries: 32,
+    issues: 0,
+  },
+]
+
+export interface Timekeeper {
+  id: string
+  name: string
+  role: string
+  billingRate: number
+}
+
+export interface OtherParticipant {
+  id: string
+  name: string
+  role: string
+}
+
+export interface ContextDocument {
+  id: string
+  title: string
+  url: string
+}
+
+export const mockTimekeepers: Timekeeper[] = [
+  { id: "tk-1", name: "Sarah Chen", role: "Senior Associate", billingRate: 350 },
+  { id: "tk-2", name: "Marcus Johnson", role: "Associate", billingRate: 250 },
+  { id: "tk-3", name: "Emma Rodriguez", role: "Partner", billingRate: 450 },
+  { id: "tk-4", name: "Alex Thompson", role: "Associate", billingRate: 250 },
+  { id: "tk-5", name: "Jordan Lee", role: "Junior Associate", billingRate: 175 },
+  { id: "tk-6", name: "Casey Wong", role: "Senior Associate", billingRate: 350 },
+]
+
+export const mockOtherParticipants: OtherParticipant[] = [
+  { id: "op-1", name: "John Smith", role: "Client Contact" },
+  { id: "op-2", name: "Linda Garcia", role: "Project Manager" },
+  { id: "op-3", name: "David Chen", role: "Technical Lead" },
+]
+
+export const mockContextDocuments: ContextDocument[] = [
+  { id: "cd-1", title: "Client Billing Guidelines", url: "#" },
+  { id: "cd-2", title: "Project Scope Document", url: "#" },
+  { id: "cd-3", title: "Rate Card 2025", url: "#" },
+]
+
+export const mockMatterContext = {
+  id: "matter-001",
+  name: "Project Blackstone",
+  description:
+    "Development and implementation of next-generation analytics platform for enterprise clients. Focus on scalability, security, and user experience optimization.",
+  billingArrangements: [
+    "Invoices payable within 14 days",
+    "25% discount on administrative work",
+    "Hourly billing with 0.25 hour minimum increments",
+    "All expenses billed at cost plus 10%",
+  ],
+}
+
+export interface AutomationRule {
+  id: string
+  title: string
+  description: string
+  references: string[]
+  steps: AutomationStep[]
+}
+
+export interface AutomationStep {
+  number: string
+  description: string
+  code: string
+}
+
+export const mockAutomationRules: AutomationRule[] = [
+  {
+    id: "rule-1",
+    title: "Insufficient Detail",
+    description: "Automatically detect and request clarification for entries lacking sufficient detail",
+    references: ["Client Billing Guidelines", "Matter Context"],
+    steps: [
+      {
+        number: "1",
+        description: "Request Clarification from Time Keeper",
+        code: `// Request clarification for insufficient detail
+const entry = getTimeEntry(entryId);
+if (entry.task.length < 20) {
+  sendEmail(entry.timekeeper, {
+    subject: 'Clarification Needed',
+    body: 'Please provide more detail for your time entry.'
+  });
+  markForReview(entry, 'insufficient-detail');
+}`,
+      },
+      {
+        number: "1b",
+        description: "Resend clarification request if unaddressed every 3 days",
+        code: `// Scheduled job to resend requests
+const unresolvedEntries = getUnresolvedEntries('insufficient-detail');
+unresolvedEntries.forEach(entry => {
+  if (daysSinceCreated(entry) % 3 === 0) {
+    resendClarificationEmail(entry);
+  }
+});`,
+      },
+      {
+        number: "2",
+        description: "Rewrite Narrative to include clarification",
+        code: `// Auto-rewrite with AI assistance
+const clarification = await getTimekeeperResponse(entryId);
+const improvedTask = await improveTaskDescription(
+  entry.task,
+  clarification
+);
+entry.suggestedTask = improvedTask;`,
+      },
+      {
+        number: "3",
+        description: "Raise for Approval",
+        code: `// Submit for review
+updateReviewStatus(entry, {
+  status: 'pending-approval',
+  suggestedText: entry.suggestedTask,
+  originalText: entry.task
+});`,
+      },
+    ],
+  },
+  {
+    id: "rule-2",
+    title: "Poor Writing Style",
+    description: "Identify and improve poorly formatted or unclear time entry descriptions",
+    references: ["Client Billing Guidelines", "Style Guide"],
+    steps: [
+      {
+        number: "1",
+        description: "Detect Poor Writing Quality",
+        code: `// Analyze writing quality
+const quality = analyzeWritingQuality(entry.task);
+if (quality.score < 0.6) {
+  flagEntry(entry, 'poor-writing');
+}`,
+      },
+      {
+        number: "2",
+        description: "Generate Improved Version",
+        code: `// Generate improved description
+const improved = await generateImprovement(entry.task, {
+  tone: 'professional',
+  style: 'concise',
+  maxLength: 100
+});
+entry.suggestedTask = improved;`,
+      },
+      {
+        number: "3",
+        description: "Notify Timekeeper and Request Approval",
+        code: `// Send improvement suggestion
+sendNotification(entry.timekeeper, {
+  type: 'writing-improvement',
+  original: entry.task,
+  suggested: entry.suggestedTask,
+  action: 'approve-or-edit'
+});`,
+      },
+    ],
+  },
+  {
+    id: "rule-3",
+    title: "Unusual Duration",
+    description: "Flag entries with atypical time durations for review",
+    references: ["Matter Context", "Billing Guidelines"],
+    steps: [
+      {
+        number: "1",
+        description: "Analyze Duration Against Historical Data",
+        code: `// Check if duration is unusual
+const avgDuration = getAverageTaskDuration(entry.task);
+const threshold = avgDuration * 1.5;
+if (entry.duration > threshold) {
+  flagEntry(entry, 'unusual-duration');
+}`,
+      },
+      {
+        number: "2",
+        description: "Request Clarification or Adjustment",
+        code: `// Send review request
+sendReviewRequest(entry, {
+  reason: 'Duration significantly higher than average',
+  suggestedAction: 'Verify or split into multiple entries',
+  averageDuration: avgDuration
+});`,
+      },
+    ],
+  },
+]
