@@ -11,13 +11,16 @@ export default function HomePage() {
   const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
   const { data: mockBills = [] } = useBills(currentMatterId)
   // Calculate statistics for current matter
-  const chargeableHours =
-    mockTimesheetData.filter((e) => !e.issue).length * 1.5 // Entries with no issues
-
   const nonChargeableHours =
     mockTimesheetData.filter((e) => e.issue).length * 1.5 // Entries with any issues
 
-  const unbilledHours = chargeableHours + nonChargeableHours // Total of both
+  const unbilledHours =
+    mockTimesheetData.length * 1.5 // Total hours (placeholder - should be all unbilled)
+
+  const timeUntilDue = "5 days" // Placeholder - time until bill needs to be sent
+
+  const billStatus = "Awaiting input" // Placeholder - current status of the bill
+  const nextStep = "partner review" // Placeholder - next step in the process
 
   const draftBills = mockBills.filter((b) => b.status === "Draft")
   const pastBills = mockBills.filter((b) => b.status === "Submitted")
@@ -76,14 +79,13 @@ export default function HomePage() {
                 />
                 <StatTile
                   label=""
-                  value={chargeableHours.toFixed(1)}
-                  detail="chargeable hours"
+                  value={timeUntilDue}
+                  detail="until bill due"
                 />
-                <StatTile
-                  label=""
-                  value={nonChargeableHours.toFixed(1)}
-                  detail="non-chargeable hours"
-                />
+                <div className="p-6 bg-card border border-border rounded-lg">
+                  <p className="text-2xl font-semibold mb-1 text-center">{billStatus}</p>
+                  <p className="text-sm text-muted-foreground">next step - {nextStep}</p>
+                </div>
               </div>
             </div>
           )}
