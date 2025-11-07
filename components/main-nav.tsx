@@ -125,6 +125,14 @@ export default function MainNav() {
                 </div>
               )}
             </div>
+
+            {/* Profile */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-sm font-medium text-primary">LB</span>
+              </div>
+              <span className="text-sm font-medium">Laura Bennett</span>
+            </div>
           </nav>
         </div>
       </div>
