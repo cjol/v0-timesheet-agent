@@ -11,16 +11,13 @@ export default function HomePage() {
   const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
   const { data: mockBills = [] } = useBills(currentMatterId)
   // Calculate statistics for current matter
-  const unbilledHours =
-    mockTimesheetData.filter((e) => ["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
-    1.5
-
   const chargeableHours =
-    mockTimesheetData.filter((e) => e.issue === "unusual-duration").length *
-    1.5 // Chargeable but flagged for review
+    mockTimesheetData.filter((e) => !e.issue).length * 1.5 // Entries with no issues
+
   const nonChargeableHours =
-    mockTimesheetData.filter((e) => e.issue === "missing-info").length *
-    1.5 // Non-chargeable hours
+    mockTimesheetData.filter((e) => e.issue).length * 1.5 // Entries with any issues
+
+  const unbilledHours = chargeableHours + nonChargeableHours // Total of both
 
   const draftBills = mockBills.filter((b) => b.status === "Draft")
   const pastBills = mockBills.filter((b) => b.status === "Submitted")
@@ -72,20 +69,20 @@ export default function HomePage() {
               {/* Statistics for Draft Bills */}
               <div className="grid grid-cols-3 gap-4">
                 <StatTile
-                  label="Unbilled Hours"
+                  label=""
                   value={unbilledHours.toFixed(1)}
-                  detail="Hours pending review"
+                  detail="hours pending review"
                   href="/entries-for-review"
                 />
                 <StatTile
-                  label="Chargeable Time"
+                  label=""
                   value={chargeableHours.toFixed(1)}
-                  detail="Unbilled chargeable hours"
+                  detail="chargeable hours"
                 />
                 <StatTile
-                  label="Non-Chargeable Time"
+                  label=""
                   value={nonChargeableHours.toFixed(1)}
-                  detail="Non-billable hours"
+                  detail="non-chargeable hours"
                 />
               </div>
             </div>
