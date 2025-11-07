@@ -11,15 +11,16 @@ export default function HomePage() {
   const { data: mockTimesheetData = [] } = useTimesheetData(currentMatterId)
   const { data: mockBills = [] } = useBills(currentMatterId)
   // Calculate statistics for current matter
-  const billedHours =
-    mockTimesheetData.filter((e) => !["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
-    1.5 // Mock calculation
   const unbilledHours =
     mockTimesheetData.filter((e) => ["insufficient-detail", "poor-writing", "missing-info"].includes(e.issue)).length *
     1.5
 
-  const timekeepers = new Set(mockTimesheetData.map((e) => e.timekeeper))
-  const avgHoursPerTimekeeper = (billedHours + unbilledHours) / timekeepers.size
+  const chargeableHours =
+    mockTimesheetData.filter((e) => e.issue === "unusual-duration").length *
+    1.5 // Chargeable but flagged for review
+  const nonChargeableHours =
+    mockTimesheetData.filter((e) => e.issue === "missing-info").length *
+    1.5 // Non-chargeable hours
 
   const draftBills = mockBills.filter((b) => b.status === "Draft")
   const pastBills = mockBills.filter((b) => b.status === "Submitted")
@@ -39,36 +40,13 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Statistics Tiles */}
-        <div className="mb-6">
-          <div className="grid grid-cols-3 gap-4">
-            <StatTile
-              label="Previously Billed Hours"
-              value={billedHours.toFixed(1)}
-              detail="Hours ready to invoice"
-              href="/time-entries"
-            />
-            <StatTile
-              label="Unbilled Hours"
-              value={unbilledHours.toFixed(1)}
-              detail="Hours pending review"
-              href="/entries-for-review"
-            />
-            <StatTile
-              label="Fee Earners"
-              value={timekeepers.size.toString()}
-              detail={`${avgHoursPerTimekeeper.toFixed(1)} hours avg`}
-            />
-          </div>
-        </div>
-
         {/* Bills Section */}
         <div className="space-y-6 mb-6">
           {/* Draft Bills */}
           {draftBills.length > 0 && (
-            <div>
+            <div className="border border-border rounded-lg p-6 bg-card/50">
               <h2 className="text-2xl font-serif font-light tracking-tight mb-6">Draft Bills</h2>
-              <div className="space-y-3">
+              <div className="space-y-3 mb-6">
                 {draftBills.map((bill) => (
                   <Link
                     key={bill.id}
@@ -84,11 +62,31 @@ export default function HomePage() {
                     <div className="text-right">
                       <p className="font-semibold">£{bill.amount.toLocaleString()}</p>
                     </div>
-                    <div className="ml-4 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+                    <div className="ml-4 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                       {bill.status}
                     </div>
                   </Link>
                 ))}
+              </div>
+
+              {/* Statistics for Draft Bills */}
+              <div className="grid grid-cols-3 gap-4">
+                <StatTile
+                  label="Unbilled Hours"
+                  value={unbilledHours.toFixed(1)}
+                  detail="Hours pending review"
+                  href="/entries-for-review"
+                />
+                <StatTile
+                  label="Chargeable Time"
+                  value={chargeableHours.toFixed(1)}
+                  detail="Unbilled chargeable hours"
+                />
+                <StatTile
+                  label="Non-Chargeable Time"
+                  value={nonChargeableHours.toFixed(1)}
+                  detail="Non-billable hours"
+                />
               </div>
             </div>
           )}
